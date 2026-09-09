@@ -1,0 +1,2892 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mementos 产品方案 · 资产进入与结果可信度</title>
+<style>
+:root{
+  --brand:#00A76F;--brand-d:#007867;--brand-l:#C8FAD6;--brand-bg:#F0F9F4;
+  --g900:#161C24;--g800:#212B36;--g700:#454F5B;--g600:#637381;--g500:#919EAB;
+  --g200:#F4F6F8;--g100:#F9FAFB;
+  --line:rgba(145,158,171,.20);--line-s:rgba(145,158,171,.32);
+  --err:#FF5630;--err-bg:#FFE9D5;--err-d:#B71D18;
+  --warn:#FFAB00;--warn-bg:#FFF1D6;--warn-d:#7A4100;
+  --info:#00B8D9;--info-bg:#CAFDF5;--info-d:#006C9C;
+  --ok:#22C55E;--ok-bg:#D3FCD2;--ok-d:#118D57;
+  --shadow:0 8px 24px rgba(15,23,42,.06);--shadow-l:0 12px 40px rgba(15,23,42,.10);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--g100);color:var(--g800);
+  font-family:"Public Sans","Helvetica Neue",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:15px;line-height:1.75;-webkit-font-smoothing:antialiased}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9em;
+  background:var(--g200);padding:1px 6px;border-radius:6px;color:var(--g700);white-space:nowrap}
+b{font-weight:600;color:var(--g900)}
+h1,h2,h3,h4{color:var(--g900);letter-spacing:-.01em}
+
+/* 顶栏 */
+header.top{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.92);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header.top .in{max-width:1180px;margin:0 auto;padding:12px 28px;display:flex;align-items:center;gap:12px}
+header.top .r{width:28px;height:28px;border-radius:9px;background:var(--g900);color:#fff;
+  display:grid;place-items:center;font-weight:800;font-size:14px}
+header.top b{font-size:15px}
+header.top .meta{margin-left:auto;color:var(--g500);font-size:12.5px;text-align:right}
+
+/* 目录 */
+nav.toc{position:sticky;top:53px;z-index:30;background:var(--g100);border-bottom:1px solid var(--line)}
+nav.toc .in{max-width:1180px;margin:0 auto;padding:10px 28px;display:flex;gap:6px;overflow-x:auto}
+nav.toc a{flex:0 0 auto;text-decoration:none;color:var(--g600);font-size:13px;font-weight:600;
+  padding:6px 11px;border-radius:9px;white-space:nowrap}
+nav.toc a i{font-style:normal;color:var(--g500);margin-right:5px;font-weight:700}
+nav.toc a:hover{background:#fff;color:var(--g800)}
+nav.toc a.on{background:var(--brand-l);color:var(--brand-d)}
+nav.toc a.on i{color:var(--brand)}
+
+main{max-width:1180px;margin:0 auto;padding:0 28px 110px}
+section.sec{padding:64px 0 8px;border-top:1px solid var(--line)}
+section.sec:first-child{border-top:0}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--brand-d);margin-bottom:12px}
+h1{font-size:38px;line-height:1.28;margin:0 0 16px}
+h2{font-size:27px;line-height:1.34;margin:0 0 14px}
+h3.blk{font-size:17px;margin:44px 0 12px}
+h4{font-size:14px;margin:0 0 8px}
+.lead{font-size:17px;color:var(--g700);max-width:74ch;margin:0 0 26px}
+.dek{color:var(--g700);max-width:82ch;margin:0 0 22px}
+.hint{color:var(--g600);font-size:13.5px;max-width:84ch;margin:0 0 14px}
+.mute{color:var(--g600)}
+
+/* 标记 */
+.fl{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;
+  padding:2px 8px;border-radius:7px;white-space:nowrap;vertical-align:1px}
+.fl:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.75}
+.fl-now{background:var(--brand-l);color:var(--brand-d)}
+.fl-new{background:var(--warn-bg);color:var(--warn-d)}
+.fl-pm{background:#EDE7FB;color:#5B3BB0}
+.fl-dev{background:var(--info-bg);color:var(--info-d)}
+.fl-none{background:var(--g200);color:var(--g600)}
+.fl-chk{background:#E3F2FD;color:#0B5394}
+.fl-p0{background:var(--brand);color:#fff}
+.fl-p0:before{background:#fff;opacity:.9}
+.fl-p1{background:#E8EAF6;color:#3949AB}
+.fl-p2{background:var(--g200);color:var(--g600)}
+.stamp{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 6px}
+
+/* 能力树（全景图） */
+.cap4{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin:20px 0 0}
+.cap4>div{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px;
+  box-shadow:var(--shadow)}
+.cap4 h5{margin:0 0 8px;font-size:14px;color:var(--g900);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.cap4 dl{margin:0;font-size:12.5px}
+.cap4 dt{font-weight:700;color:var(--g600);margin-top:8px;font-size:11.5px;letter-spacing:.04em}
+.cap4 dt:first-child{margin-top:0}
+.cap4 dd{margin:1px 0 0;color:var(--g700)}
+.cap4 .ux{margin-top:10px;padding-top:9px;border-top:1px dashed var(--line);
+  font-size:12px;color:var(--brand-d)}
+/* 两条路径 */
+.paths{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0 0}
+.paths>div{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 20px;
+  box-shadow:var(--shadow)}
+.paths .pt{font-size:14px;font-weight:700;color:var(--g900);margin:0 0 4px}
+.paths .pd{font-size:12.5px;color:var(--g600);margin:0 0 12px}
+.paths.a1>div:first-child{border-color:rgba(0,184,217,.36);background:#F5FDFF}
+.paths.a1>div:last-child{border-color:rgba(0,167,111,.30);background:var(--brand-bg)}
+
+/* 路径条 */
+.path{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);
+  border-radius:12px;padding:10px 14px;font-size:13px;color:var(--g700);margin:0 0 16px}
+.path .lb{font-weight:700;color:var(--g900);font-size:12px;background:var(--g200);
+  padding:2px 8px;border-radius:6px}
+.path .sep{color:var(--g500)}
+.path .cur{font-weight:600;color:var(--brand-d)}
+
+/* 六段解读 */
+.six{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:22px 0 0}
+.six>div{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+.six .k{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;
+  letter-spacing:.04em;color:var(--g600);margin-bottom:8px}
+.six .k .dot{width:7px;height:7px;border-radius:50%;background:var(--g500)}
+.six .v{font-size:14px;color:var(--g700)}
+.six .prob{background:#FFFCF7;border-color:rgba(255,171,0,.28)}
+.six .prob .dot{background:var(--warn)}
+.six .now{background:var(--g100)}
+.six .now .dot{background:var(--g600)}
+.six .plan{background:var(--brand-bg);border-color:rgba(0,167,111,.24)}
+.six .plan .dot{background:var(--brand)}
+.six .gain .dot{background:var(--ok)}
+
+/* 卡片 / 提示 */
+.note{border-radius:14px;padding:14px 18px;font-size:13.5px;margin:16px 0 0;border:1px solid transparent}
+.n-ok{background:var(--brand-bg);border-color:rgba(0,167,111,.22);color:#0d5c46}
+.n-warn{background:var(--warn-bg);border-color:rgba(255,171,0,.30);color:var(--warn-d)}
+.n-err{background:var(--err-bg);border-color:rgba(255,86,48,.28);color:var(--err-d)}
+.n-info{background:var(--info-bg);border-color:rgba(0,184,217,.26);color:var(--info-d)}
+.n-mute{background:#fff;border-color:var(--line);color:var(--g700)}
+
+/* 改动说明卡片（界面下方） */
+.chg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;background:#fff;
+  border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:14px 0 0;box-shadow:var(--shadow)}
+.chg>div{padding:16px 18px;border-right:1px solid var(--line)}
+.chg>div:last-child{border-right:0}
+.chg .t{font-size:11.5px;font-weight:800;letter-spacing:.06em;color:var(--g500);margin-bottom:6px}
+.chg .c{font-size:13px;color:var(--g700)}
+.chg .c b{display:block;color:var(--g900);margin-bottom:2px}
+
+/* 界面画面 */
+.screen{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;
+  box-shadow:var(--shadow);margin:20px 0 0}
+.screen .cap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:11px 20px;
+  background:var(--g200);border-bottom:1px solid var(--line);font-size:12.5px;color:var(--g600)}
+.screen .cap .nm{font-weight:700;color:var(--g800)}
+.screen .cap>span:last-child{margin-left:auto}
+.screen .body{padding:24px 26px 26px}
+.crumb{font-size:12px;color:var(--g500);margin-bottom:10px}
+.crumb span{color:var(--g700);font-weight:600}
+.ph{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.ph h4{font-size:20px;margin:0}
+.ph .sub{flex-basis:100%;color:var(--g600);font-size:13px;margin-top:-2px}
+.btn{display:inline-flex;align-items:center;white-space:nowrap;font-size:12.5px;font-weight:600;padding:5px 12px;
+  border-radius:9px;border:1px solid var(--line-s);color:var(--g700);background:#fff}
+.btn.pri{border-color:var(--g900);color:var(--g900)}
+.btn.brand{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.off{opacity:.45;text-decoration:line-through}
+
+/* 状态标签 */
+.st{display:inline-flex;align-items:center;font-size:12px;font-weight:700;padding:3px 9px;
+  border-radius:8px;white-space:nowrap}
+.s-ok{background:var(--ok-bg);color:var(--ok-d)}
+.s-err{background:var(--err-bg);color:var(--err-d)}
+.s-warn{background:var(--warn-bg);color:var(--warn-d)}
+.s-info{background:var(--info-bg);color:var(--info-d)}
+.s-mute{background:var(--g200);color:var(--g600)}
+.s-line{background:#fff;color:var(--g600);box-shadow:inset 0 0 0 1px var(--line-s)}
+
+/* 表格 */
+.tw{overflow-x:auto;margin:14px 0 0}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:520px}
+thead th{background:var(--g200);font-size:12.5px;font-weight:600;color:var(--g600);
+  text-align:left;padding:9px 12px;white-space:nowrap}
+thead th:first-child{border-radius:10px 0 0 10px}
+thead th:last-child{border-radius:0 10px 10px 0}
+td{padding:11px 12px;border-bottom:1px dashed var(--line);vertical-align:top;color:var(--g700)}
+tbody tr:last-child td{border-bottom:0}
+td.main{color:var(--g900);font-weight:600}
+td.num{font-variant-numeric:tabular-nums}
+td code{display:inline-block;margin-top:2px}
+td small{display:block;color:var(--g500);font-size:12px;font-weight:400;margin-top:3px}
+table.rules td:first-child{color:var(--g900);font-weight:600;white-space:nowrap}
+
+/* 数字条 */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:16px 0 0}
+.stats>div{background:var(--g100);border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+  font-size:12.5px;color:var(--g600)}
+.stats strong{display:block;font-size:26px;font-weight:800;color:var(--g900);
+  line-height:1.2;font-variant-numeric:tabular-nums}
+.stats .hl{background:var(--brand-bg);border-color:rgba(0,167,111,.24)}
+.stats .hl strong{color:var(--brand-d)}
+.stats .bad{background:var(--err-bg);border-color:rgba(255,86,48,.24)}
+.stats .bad strong{color:var(--err-d)}
+.stats .warn{background:var(--warn-bg);border-color:rgba(255,171,0,.28)}
+.stats .warn strong{color:var(--warn-d)}
+
+/* 两栏 */
+.two{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;align-items:start;margin-top:20px}
+.aside{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px 22px;box-shadow:var(--shadow)}
+.aside h4{font-size:14px;margin:0 0 10px}
+.aside dl{margin:0}
+.aside dt{font-size:13px;font-weight:700;color:var(--g900);margin-top:12px}
+.aside dt:first-child{margin-top:0}
+.aside dd{margin:2px 0 0;font-size:13px;color:var(--g700)}
+
+/* 待确认 */
+.ask{background:#fff;border:1px solid var(--line);border-left:3px solid #7C4DFF;
+  border-radius:14px;padding:16px 20px;margin:22px 0 0;font-size:13.5px}
+.ask ul{margin:8px 0 0;padding-left:20px}
+.ask li{margin-bottom:6px;color:var(--g700)}
+
+/* 链路 */
+.flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:20px 0 0}
+.flow .fs{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px;
+  box-shadow:var(--shadow);min-width:0}
+.flow .fs .n{font-size:11px;font-weight:800;color:var(--g500);letter-spacing:.06em}
+.flow .fs .t{font-size:14px;font-weight:700;color:var(--g900);margin:3px 0 5px}
+.flow .fs .s{font-size:12px;color:var(--g600)}
+.flow .fs.has{border-color:rgba(0,167,111,.34);background:var(--brand-bg)}
+.flow .fs.gap{border-color:rgba(255,171,0,.40);background:#FFFCF7}
+.flow .fs.out{background:var(--g900);border-color:var(--g900)}
+.flow .fs.out .t{color:#fff}.flow .fs.out .n,.flow .fs.out .s{color:#B7C0C9}
+
+/* 对象关系 */
+.map{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:14px;align-items:center;
+  background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px 22px;
+  box-shadow:var(--shadow);margin:20px 0 0}
+.map .col{min-width:0;display:flex;flex-direction:column;gap:10px}
+.map .ctit{font-size:11.5px;font-weight:800;letter-spacing:.06em;color:var(--g500)}
+.map .ob{border:1px solid var(--line);border-radius:14px;padding:13px 15px;background:var(--g100)}
+.map .obt{font-size:14px;font-weight:700;color:var(--g900)}
+.map .obd{font-size:12.5px;color:var(--g600);margin:3px 0 6px}
+.map .link{color:var(--g500);font-size:11.5px;font-weight:700;text-align:center;white-space:nowrap}
+
+/* 生命周期条 */
+.life{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);
+  border-radius:16px;padding:16px 20px;box-shadow:var(--shadow);margin:16px 0 0}
+.life .p{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--g700);
+  background:var(--g200);border-radius:10px;padding:6px 12px}
+.life .p .i{width:18px;height:18px;border-radius:50%;background:#fff;color:var(--g600);
+  display:grid;place-items:center;font-size:11px;font-weight:800}
+.life .p.a{background:var(--brand-l);color:var(--brand-d)}
+.life .p.a .i{background:var(--brand);color:#fff}
+.life .arrow{color:var(--g500)}
+
+/* ============ 正式站应用框架（设计画面统一外壳） ============ */
+.screen .body{padding:0}
+.app{display:grid;grid-template-columns:218px minmax(0,1fr)}
+.side{background:#fff;border-right:1px solid var(--line);padding:14px 12px 20px;min-width:0}
+.side .logo{display:flex;align-items:center;gap:8px;padding:2px 8px 12px}
+.side .logo .r{width:22px;height:22px;border-radius:7px;background:var(--g900);color:#fff;
+  display:grid;place-items:center;font-weight:800;font-size:11px}
+.side .logo b{font-size:12.5px;color:var(--g800)}
+.side .dom{font-size:11px;color:var(--g500);line-height:1.6;padding:0 8px 10px;
+  border-bottom:1px solid var(--line);margin-bottom:10px}
+.side .prod{font-size:10.5px;font-weight:800;letter-spacing:.09em;color:var(--brand-d);
+  padding:0 8px 6px}
+.sgrp{font-size:10.5px;font-weight:800;letter-spacing:.08em;color:var(--g500);
+  padding:12px 8px 4px;display:flex;align-items:center;gap:6px}
+.sgrp:first-of-type{padding-top:2px}
+.sgrp .nb{font-size:9.5px;font-weight:700;letter-spacing:0;color:var(--warn-d);
+  background:var(--warn-bg);border-radius:5px;padding:0 4px}
+.sitem{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--g700);
+  padding:6px 9px 6px 20px;border-radius:9px;margin-bottom:1px;position:relative}
+.sitem:before{content:"";position:absolute;left:10px;top:50%;width:3px;height:3px;
+  border-radius:50%;background:var(--g500);opacity:.5;transform:translateY(-50%)}
+.sitem.on{background:var(--brand-l);color:var(--brand-d);font-weight:700}
+.sitem.on:before{background:var(--brand);opacity:1;width:4px;height:4px}
+.sitem .bdg{margin-left:auto;font-size:10.5px;font-weight:800;min-width:17px;height:17px;
+  border-radius:9px;display:grid;place-items:center;padding:0 5px;
+  background:var(--err);color:#fff;font-variant-numeric:tabular-nums}
+.sitem.nw{color:var(--warn-d)}
+.sitem.nw:before{background:var(--warn);opacity:1}
+.sitem .tag{margin-left:auto;font-size:9.5px;font-weight:700;color:var(--warn-d);
+  background:var(--warn-bg);border-radius:5px;padding:0 4px}
+.pane{min-width:0}
+.appbar{display:flex;align-items:center;gap:8px;padding:9px 22px;border-bottom:1px solid var(--line);
+  background:var(--g100);font-size:11.5px;color:var(--g500);flex-wrap:wrap}
+.appbar b{font-size:11.5px;color:var(--g700);font-weight:700}
+.appbar .k{margin-left:auto;font-size:11px;color:var(--g500)}
+.pbody{padding:20px 24px 26px}
+/* 详情页页内目录（正式站 Run 详情已有） */
+.pnav{display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--line);
+  margin:0 0 16px;padding-bottom:10px}
+.pnav span{font-size:12.5px;font-weight:600;color:var(--g600);padding:4px 10px;border-radius:8px;
+  background:var(--g200)}
+.pnav span.on{background:var(--g900);color:#fff}
+.pnav span.nw{background:var(--warn-bg);color:var(--warn-d)}
+/* 设计画面在宽屏上向两侧展开，接近真实工作台的宽度；正文仍保持易读宽度 */
+@media(min-width:1400px){
+  .screen{margin-left:-96px;margin-right:-96px}
+}
+/* 导航对照（现状 vs 本次分组） */
+.navcmp{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.navcmp .side{border:1px solid var(--line);border-radius:14px}
+.navcmp .hd{font-size:12.5px;font-weight:700;color:var(--g700);margin:0 0 8px;
+  display:flex;align-items:center;gap:8px}
+.sitem.fl2{padding-left:9px}
+.sitem.fl2:before{display:none}
+/* 趋势条（评测集合用，密度接近内部工具，不做图表库效果） */
+.bars{margin:12px 0 0}
+.bars .row{display:grid;grid-template-columns:170px minmax(0,1fr) 92px;align-items:center;
+  gap:10px;padding:4px 0;font-size:12.5px}
+.bars .row .lb2{color:var(--g600);font-variant-numeric:tabular-nums}
+.bars .tk{position:relative;height:16px;background:var(--g200);border-radius:4px}
+.bars .fi{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--brand)}
+.bars .fi.bad{background:var(--err)}
+.bars .fi.na{background:repeating-linear-gradient(45deg,var(--g200),var(--g200) 4px,#fff 4px,#fff 8px);
+  border:1px solid var(--line-s);box-sizing:border-box}
+.bars .th{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--g900)}
+.bars .th b{position:absolute;left:5px;top:-2px;font-size:10px;color:var(--g700);white-space:nowrap;font-weight:700}
+.bars .vl{text-align:right;font-variant-numeric:tabular-nums;color:var(--g800);font-weight:600}
+/* 弹窗（正式站场景详情、版本历史都是弹窗） */
+.mask{margin:16px 0 0;padding:14px;border-radius:14px;background:rgba(22,28,36,.34)}
+.modal{background:#fff;border-radius:14px;box-shadow:0 18px 50px rgba(15,23,42,.28);overflow:hidden}
+.modal>.mh{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.modal>.mh b{font-size:15px;color:var(--g900)}
+.modal>.mh .x{margin-left:auto;color:var(--g500);font-size:16px;line-height:1}
+.modal>.mb{padding:16px 18px 20px}
+.modal>.mf{display:flex;align-items:center;gap:8px;padding:12px 18px;
+  border-top:1px solid var(--line);background:var(--g100)}
+/* 区域标题 */
+.rg{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:24px 0 0}
+.rg h4{font-size:15px;margin:0}
+.rg:first-child{margin-top:0}
+details{background:#fff;border:1px solid var(--line);border-radius:14px;padding:0 18px;margin:16px 0 0}
+summary{cursor:pointer;padding:13px 0;font-size:13.5px;font-weight:600;color:var(--g800)}
+details[open]{padding-bottom:14px}
+
+footer{border-top:1px solid var(--line);margin-top:56px;padding:26px 28px 60px;
+  max-width:1180px;margin-left:auto;margin-right:auto;color:var(--g500);font-size:12.5px;line-height:1.9}
+
+@media(max-width:1000px){
+  .six,.chg{grid-template-columns:1fr}
+  .chg>div{border-right:0;border-bottom:1px solid var(--line)}
+  .chg>div:last-child{border-bottom:0}
+  .two{grid-template-columns:1fr}
+  .flow{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .map{grid-template-columns:1fr}
+  h1{font-size:29px}h2{font-size:23px}
+}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="in">
+  <div class="r">R</div>
+  <b>Mementos · 资产进入与结果可信度</b>
+  <span class="st s-line">产品方案评审版 v2</span>
+  <span class="meta">2026-09-09 · 现状经正式站实测 · 界面为设计画面，数据为示例数据</span>
+</div></header>
+
+<nav class="toc" aria-label="章节目录"><div class="in">
+  <a href="#read" class="on"><i>00</i>阅读说明</a>
+  <a href="#allmap"><i>★</i>全景图与分期</a>
+  <a href="#today"><i>01</i>正式站现状</a>
+  <a href="#model"><i>02</i>对象与命名</a>
+  <a href="#s1"><i>03</i>上传后去哪</a>
+  <a href="#s2"><i>04</i>谁审、按什么审</a>
+  <a href="#s3"><i>05</i>发布与采用</a>
+  <a href="#s4"><i>06</i>加入场景集</a>
+  <a href="#s5"><i>07</i>组装评测配置</a>
+  <a href="#s6"><i>08</i>创建 Run</a>
+  <a href="#s7"><i>09</i>看结果</a>
+  <a href="#s8"><i>10</i>与基准对比</a>
+  <a href="#s9"><i>11</i>评测集合</a>
+  <a href="#s10"><i>12</i>后续维护</a>
+  <a href="#plan"><i>13</i>建设顺序与待定</a>
+</div></nav>
+
+<main>
+
+<!-- ================= 00 怎么读 ================= -->
+<section class="sec" id="read">
+  <div class="eyebrow">00 · 阅读说明</div>
+  <h1>按一条完整路径展开，<br>从本地上传走到长期维护。</h1>
+  <p class="lead">本方案不按模块展开，按一次连续操作展开。同一组资产、同一个配置、同一次 Run，
+    从第 03 章一路走到第 12 章，前一章的操作结果会出现在后一章里，名称、ID、版本、数量和状态保持一致。
+    每一章都先说清「这件事发生在正式站的哪个页面、哪个区域」。<b>紧接这一页的「全景图与分期」是完整能力的一张图</b>，
+    先看它判断方向，再顺着用户操作过程往下读。</p>
+
+  <div class="stamp">
+    <span class="fl fl-now">正式站已有（本轮实测）</span>
+    <span class="fl fl-new">本次方案新增或改动</span>
+    <span class="fl fl-chk">待核实（不下结论）</span>
+    <span class="fl fl-pm">建议、待确认</span>
+    <span class="fl fl-dev">工作量待研发估算</span>
+    <span class="fl fl-p0">本期</span>
+    <span class="fl fl-p1">下一阶段</span>
+    <span class="fl fl-p2">更后面</span>
+  </div>
+
+  <div class="two">
+    <div>
+      <div class="tw"><table class="rules">
+        <thead><tr><th style="width:24%">每一部分固定讲六件事</th><th>写什么</th></tr></thead>
+        <tbody>
+          <tr><td>① 谁在使用</td><td>具体是谁（提交人 / 评审人 / 平台负责人 / 用结果的人），他为什么会来到这一步。</td></tr>
+          <tr><td>② 在正式站哪个位置</td><td>准确到「导航 → 页面 → 区域」，并说明这个区域<b>现在已经有什么</b>。</td></tr>
+          <tr><td>③ 要完成什么</td><td>这一步的目标动作，以及为达成它需要定的规则。</td></tr>
+          <tr><td>④ 改后的界面</td><td>一张静态设计画面，沿用正式站的组件与同一组示例数据。</td></tr>
+          <tr><td>⑤ 为什么这样改</td><td>不改会付什么代价；为什么选这个做法而不是另一个。只写可验证的部分。</td></tr>
+          <tr><td>⑥ 本期与后续边界</td><td>本期做到哪、下一阶段做什么、更后面做什么，以及本期<b>刻意不做</b>的是什么。</td></tr>
+        </tbody>
+      </table></div>
+      <div class="note n-mute"><b>标着「设计画面」的那张卡片就是 ④；它下方的四格卡片是 ②③⑤⑥：</b>现状 / 本次改动 / 为什么这样改 / 本期与后续边界。
+        <b>规则冲突的地方我给了推荐口径，标成「建议、待确认」并配一个具体例子</b>，用来支撑本方案里的界面演示和讨论；
+        <b>正式实现前需要相关负责人确认</b>，确认下来的口径可能和这里不同，界面和数据结构都可能要跟着改。
+        正文与界面中的数字、状态保持一致；若发现不一致，属于本方案的错误，欢迎当场指出。</div>
+    </div>
+    <div class="aside">
+      <h4>贯穿全篇的一组示例数据</h4>
+      <dl>
+        <dt>人</dt><dd>提交人 <code>user.a</code>（规划场景组）· 评审人 <code>user.b</code> · 平台负责人 <code>user.c</code></dd>
+        <dt>新场景</dt><dd><code>merge_slow_lead_sv</code>，草稿 <code>draft-9c41f0ab</code></dd>
+        <dt>新计算器</dt><dd><code>lateral-clearance@0.9.0</code> 校验有<b>错误</b>（被打回）→ 修正为 <code>@1.0.0</code></dd>
+        <dt>新判定标准</dt><dd><code>clearance-min@1</code> · <code>min_clearance</code> GTE 0.5 m</dd>
+        <dt>场景集</dt><dd><code>Basic</code> v1（4 个）→ v2（5 个）</dd>
+        <dt>评测配置</dt><dd><code>PnC PR Regression</code> v3 → v4</dd>
+        <dt>Run</dt><dd>新 Run <code>run-3f77a1c2</code>，基线 <code>run-8e0aba98</code></dd>
+      </dl>
+      <p class="mute" style="margin:12px 0 0;font-size:12.5px">场景名、草稿 ID 前缀、Run ID 前缀、版本写法都沿用正式站现在的格式，
+        方便对照；但这些具体对象都不存在于正式站。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ★ 全景图与分期 ================= -->
+<section class="sec" id="allmap">
+  <div class="eyebrow">★ · 全景图与建设阶段</div>
+  <h2>一张图看完整能力，<br>再看每块能力在哪一期落地。</h2>
+  <p class="dek">先给完整蓝图，是为了让方向可以被判断：哪些是正式站<b>已经有的</b>、哪些是本期要补的、哪些放到后面。
+    「放到后面」不等于设计上留白——Diff、评测集合、资产治理这三块后面都有<b>完整的界面画面和使用流程</b>，只是分期不同。</p>
+
+  <h3 class="blk">本期要打通的一条闭环：从本地上传，一直走到看到结果</h3>
+  <p class="hint">本期的验收标准不是「资产发布出来了」，而是<b>这条链路整条能走完</b>：上传的资产被评测配置选用、创建出 Run、并在结果里能读懂结论。
+    绿色是正式站已经能走通、本期<b>直接衔接不重建</b>的部分；黄色是本期要补的。</p>
+  <div class="flow">
+    <div class="fs out"><div class="n">起点</div><div class="t">本地生产与上传</div><div class="s">Yasha / mona metrics + CLI，平台外</div></div>
+    <div class="fs gap"><div class="n">本期 · 第 03 章</div><div class="t">上传落到草稿区</div><div class="s">补回执、校验结论、失败原因</div></div>
+    <div class="fs gap"><div class="n">本期 · 第 03 章</div><div class="t">草稿直接试跑</div><div class="s">现状就能跑，本期只是把它<b>明确成一条路径</b></div></div>
+    <div class="fs gap"><div class="n">本期 · 第 04–05 章</div><div class="t">评审 → 发布</div><div class="s">仅「成为可复用正式资产」时才需要</div></div>
+    <div class="fs has"><div class="n">本期 · 第 06–07 章</div><div class="t">被场景集 / 评测配置选用</div><div class="s">场景集与配置版本历史都已有，直接衔接</div></div>
+    <div class="fs has"><div class="n">本期 · 第 08 章</div><div class="t">创建 Run</div><div class="s">三步向导与「冻结与摘要」都已有</div></div>
+    <div class="fs has"><div class="n">本期 · 第 09 章</div><div class="t">看到结果与结论</div><div class="s">六段结构已有，本期定结论口径</div></div>
+  </div>
+  <div class="note n-ok"><b>这条链路上真正要新建的东西不多。</b>评测配置、Run 向导、Run 详情、场景集、指标注册表都已经在正式站跑着，
+    本期改动集中在<b>草稿区、评审、结论口径</b>三处，其余是在已有区域里补字段和提示。
+    <b>本期不重建配置能力，也不重建运行能力。</b></div>
+
+  <h3 class="blk">完整能力树：十块能力，各自的现状与分期</h3>
+  <p class="hint">每张卡都分四行：正式站已有（本轮实测）／本期做／后续做／需要先核实的。<b>「已有」一律不写成新建。</b></p>
+
+  <div class="cap4">
+    <div>
+      <h5>1 · 资产进入 <span class="fl fl-p0">本期</span></h5>
+      <dl>
+        <dt>已有</dt><dd>场景库有独立的「Scene 草稿」区（当前显示 <code>0 个有效草稿</code>）；4 个已发布场景的来源都是 <code>scene-draft:draft-…</code>。</dd>
+        <dt>本期</dt><dd>草稿卡片显示上传时间、提交人、校验结论与失败原因；一处能看到「我传的东西现在在哪」。</dd>
+        <dt>后续</dt><dd>开环仿真用例、台架测试用例套用同一套草稿区。</dd>
+        <dt>待核实</dt><dd><span class="fl fl-chk">待核实</span>「有效草稿」的判定规则是什么；CLI 上传后后端是否已有回执/校验记录只是没展示。</dd>
+      </dl>
+      <div class="ux">界面工作：草稿卡片、空态、失败原因的展开方式。</div>
+    </div>
+
+    <div>
+      <h5>2 · 校验与试跑 <span class="fl fl-p0">本期</span></h5>
+      <dl>
+        <dt>已有</dt><dd>场景详情弹窗已有 <b>校验状态 validated</b>、Case 内容哈希、Schema 内容哈希；草稿本身已经可以被 Run 引用。</dd>
+        <dt>本期</dt><dd>把「草稿试跑」和「正式发布」画成两条并行路径；校验结论分<b>通过 / 警告 / 错误</b>三档：
+          <b>错误阻断试跑与提交评审</b>（跑起来也拿不到结果），<b>警告不阻断试跑</b>，只在提交评审时带给评审人看。</dd>
+        <dt>后续</dt><dd>校验规则清单可视化、批量重新校验。</dd>
+        <dt>待核实</dt><dd><span class="fl fl-chk">待核实</span>校验是上传时同步做还是异步做；失败时后端留了什么错误信息。</dd>
+      </dl>
+      <div class="ux">界面工作：两条路径的入口在同一个卡片上并列，不做成两个页面。</div>
+    </div>
+
+    <div>
+      <h5>3 · 评审与发布 <span class="fl fl-p0">本期</span></h5>
+      <dl>
+        <dt>已有</dt><dd>资产有<b>已发布</b>状态；执行器表已有「负责人 + 生命周期 + 健康状态」的现成范式可以照搬。</dd>
+        <dt>本期</dt><dd>三类资产分别定评审必要性与评审内容（第 04 章）；状态、权限、操作记录的依赖逐项列出。</dd>
+        <dt>后续</dt><dd>评审模板、抽样复审、到期复核。</dd>
+        <dt>待核实</dt><dd><span class="fl fl-chk">待核实</span>后端是否已有 pending/approved 之类的状态位与操作记录表；「负责人」字段是否参与权限判断。</dd>
+      </dl>
+      <div class="ux"><b>不是「加几列」。</b>涉及状态机、权限点、操作记录三处后端改动，<span class="fl fl-dev">工作量待研发估算</span></div>
+    </div>
+
+    <div>
+      <h5>4 · 版本与冻结 <span class="fl fl-p0">本期（最小规则）</span></h5>
+      <dl>
+        <dt>已有</dt><dd>指标计算器与判定标准都是<b>不可变版本</b>（<code>collision@1.0.4</code> / <code>collision-free@1</code>）；评测配置有版本与内容哈希；Run 详情台架段明确写着「本次运行冻结的用例与依赖版本，不随后续更新而变化」。</dd>
+        <dt>本期</dt><dd>只定四条最小规则：评审针对哪个修订、改动后批准是否失效、已发布版本能否修改、Run 如何记录实际输入（见下一节）。</dd>
+        <dt>后续</dt><dd>完整引用树、批量升级、升级影响分析。</dd>
+        <dt>待核实</dt><dd><span class="fl fl-chk">待核实</span>场景是否有内部修订号（界面上只有内容哈希）；场景集是否有版本。</dd>
+      </dl>
+      <div class="ux"><b>优先复用已有版本能力</b>，不新造一套版本体系。</div>
+    </div>
+
+    <div>
+      <h5>5 · 组装与选用 <span class="fl fl-p0">本期衔接</span></h5>
+      <dl>
+        <dt>已有</dt><dd>场景集 <code>Basic</code>（4 个场景，<b>被 6 个 Evaluation Profile 引用</b>）；2 个评测配置，各有版本历史、内容哈希、被 N 次评测使用、版本间变化摘要。</dd>
+        <dt>本期</dt><dd><b>不重建。</b>只保证新发布的资产能被选进来，并在选用时显示它的版本。</dd>
+        <dt>后续</dt><dd>配置详情页的引用树、完整性检查、升级影响（第 07 章有完整画面）。</dd>
+        <dt>待核实</dt><dd><span class="fl fl-chk">待核实</span>场景集成员记录的是场景名还是某个具体修订。</dd>
+      </dl>
+      <div class="ux">界面工作：选用面板里补版本标识，其余沿用现有弹窗。</div>
+    </div>
+
+    <div>
+      <h5>6 · 触发与执行 <span class="fl fl-now">已有，本期基本不动</span></h5>
+      <dl>
+        <dt>已有</dt><dd>144 次运行；三步新建向导（目标 → 内容 → 冻结与摘要），可从场景集预填、可覆盖载具/地图/版本、可强制不复用；自动触发规则 + 治理标签（Kill Switch、操作原因、Webhook 健康度）。</dd>
+        <dt>本期</dt><dd>只在向导里补两处：有阻断项时拦住并说清原因；摘要里把已经冻结的输入显示全。</dd>
+        <dt>后续</dt><dd>批量创建、按场景集排期。</dd>
+        <dt>待核实</dt><dd><span class="fl fl-chk">待核实</span>运行列表 PR 列全为 <code>-</code>，PR 关联是否只是未回填。</dd>
+      </dl>
+      <div class="ux">界面工作：向导第二、三步的提示区，不加步骤。</div>
+    </div>
+
+    <div>
+      <h5>7 · 结果与结论口径 <span class="fl fl-p0">本期重点</span></h5>
+      <dl>
+        <dt>已有</dt><dd>Run 详情六段齐全；检查项已分<b>执行 / 质量</b>两列；场景结果已有指标计算器执行情况、描述符输出、判定标准结果（观测值/阈值/原因）、指标证据 URI。</dd>
+        <dt>本期</dt><dd>结论区分<b>通过 / 未通过 / 无法判定 / 不适用</b>，原因单独一层；原因不明时写「原因未知」，不归责给场景或计算器（第 09 章）。</dd>
+        <dt>后续</dt><dd>失败聚类、按原因归档、自动重试建议。</dd>
+        <dt>待核实</dt><dd><span class="fl fl-chk">待核实</span>后端是否已能区分「没跑成」与「跑了没有指标」。</dd>
+      </dl>
+      <div class="ux">界面工作：结论徽标 + 原因行 + 分母，复用现有 <code>质量</code> 列的「—」表达。</div>
+    </div>
+
+    <div>
+      <h5>8 · 对比与聚合 <span class="fl fl-p1">下一阶段</span></h5>
+      <dl>
+        <dt>已有</dt><dd>Run 详情已有「与基准 Run 对比」，并明确写着<b>不要求评测配置一致</b>；「评测集合」入口和新建对话框都在，列表为空。</dd>
+        <dt>下一阶段</dt><dd>对比页补可比性判断与数值变化（第 10 章）；集合详情页从零建 Scene × Run 矩阵与趋势（第 11 章）。</dd>
+        <dt>本期只做</dt><dd>定「哪些数据能进入指标比较」的有效条件，写进第 09 章，供下一阶段直接用。</dd>
+        <dt>待核实</dt><dd><span class="fl fl-chk">待核实</span>对比接口现在按什么对齐场景（名称还是 ID）。</dd>
+      </dl>
+      <div class="ux">第 10、11 章有完整界面画面与使用流程，本期不开发。</div>
+    </div>
+
+    <div>
+      <h5>9 · 资产治理与待办 <span class="fl fl-p1">下一阶段 · 形态候选</span></h5>
+      <dl>
+        <dt>已有</dt><dd>审计日志入口在（本账号 <code>Insufficient permissions</code>，看不到内容）；自动触发治理标签已有「操作要写原因 + 写清需要什么角色」的范式。</dd>
+        <dt>下一阶段</dt><dd>跨资产的待办与治理视图（第 12 章有完整画面）。<b>「资产工作台」是候选形态之一</b>，也可以做成现有页面上的筛选与角标，不一定新增导航项。</dd>
+        <dt>本期只做</dt><dd>各资产页面内的「待我处理」筛选，不新增页面。</dd>
+        <dt>待核实</dt><dd><span class="fl fl-chk">待核实</span>审计日志已经记了哪些动作、有没有前后值。</dd>
+      </dl>
+      <div class="ux">第 12 章按候选方案画，标注了「若不新增导航项，同样的信息落在哪」。</div>
+    </div>
+
+    <div>
+      <h5>10 · 通知与协作 <span class="fl fl-p1">下一阶段 · 有前置依赖</span></h5>
+      <dl>
+        <dt>已有</dt><dd>自动触发治理标签写明<b>通知 Provider 状态：not_configured</b>——也就是说通知这一步现在没有底座。</dd>
+        <dt>本期</dt><dd>不做推送。评审待办只做<b>页面内可见 + 可分享链接</b>，并写清这不能替代提醒。</dd>
+        <dt>下一阶段</dt><dd>通知渠道打通后再接评审待办、超时提醒。</dd>
+        <dt>待核实</dt><dd><span class="fl fl-chk">待核实</span>通知 Provider 是平台级配置还是 Mementos 独立配置、谁能开。</dd>
+      </dl>
+      <div class="ux"><b>各页面默认视图保留团队视角</b>，不默认只看「我创建的」；「我创建的」「待我处理」是筛选项。</div>
+    </div>
+  </div>
+
+  <h3 class="blk">本期就要说清的四条最小版本规则</h3>
+  <p class="hint">这四条是本期必须有答案的，不做完整引用树也能落地。<b>都是建议口径，配了具体例子，供和研发确认。</b></p>
+  <div class="tw"><table class="rules">
+    <thead><tr><th style="width:19%">问题</th><th style="width:30%">建议规则</th><th style="width:27%">例子</th><th>为什么这样定</th></tr></thead>
+    <tbody>
+      <tr><td><b>评审针对哪个版本</b></td>
+        <td>评审对象是<b>一个具体修订</b>，不是资产名。提交评审时把当前内容哈希固定下来，评审页显示这个哈希。<span class="fl fl-pm">建议、待确认</span></td>
+        <td><code>lateral-clearance</code> 提交评审时哈希 <code>a91f…</code>，评审记录写「批准 <code>a91f…</code>」，不是「批准 lateral-clearance」。</td>
+        <td>正式站已经在用内容哈希（场景详情、配置版本历史都有），不需要新造标识。</td></tr>
+      <tr><td><b>改了还算批准吗</b></td>
+        <td>内容哈希变了，<b>批准即失效</b>，退回草稿并注明「内容已变更，需重新提交」。评审意见保留可见。<span class="fl fl-pm">建议、待确认</span></td>
+        <td>评审通过后又改了一个阈值 → 哈希从 <code>a91f…</code> 变 <code>c30d…</code> → 状态回到草稿，历史里能看到上一轮为什么通过。</td>
+        <td>否则「已批准」会指向一份没人看过的内容，这是最容易出事的地方。</td></tr>
+      <tr><td><b>已发布版本能改吗</b></td>
+        <td><b>不能改，只能新发一个修订。</b>而且<b>发新版本不自动停用旧版本</b>——新版只是多出一个可选版本，
+          旧版保持启用，直到有人<b>显式</b>停用它。<span class="fl fl-pm">建议、待确认</span></td>
+        <td><code>collision@1.0.4</code> 要调口径 → 发 <code>@1.0.5</code>。此时 <code>1.0.4</code> <b>仍然是启用状态</b>，
+          引用它的配置继续按它跑；换不换由各配置的负责人自己决定（见下一节）。</td>
+        <td>自动停用会在别人没准备好的时候悄悄换掉他的口径；而且只有允许两个版本并存，才可能做新旧版本对比。
+          指标注册表现在就是「不可变版本」，这条只是把已有做法写成规则并覆盖到场景。</td></tr>
+      <tr><td><b>Run 怎么记录实际输入</b></td>
+        <td>Run 保存时把<b>实际使用的每个输入的精确标识</b>写进快照，包括场景修订、场景集版本、判定标准精确标识。<span class="fl fl-pm">建议、待确认</span></td>
+        <td>正式站 Run 已记录评测配置 <code>Develop / Latest · v3</code>、计算器 <code>collision@1.0.4</code>、地图版本、镜像摘要、配置快照哈希；本期补的是<b>场景修订</b>和<b>判定标准精确标识</b>（现在这里显示的是一段描述文字）。</td>
+        <td>大部分已经有了。台架段自己就写着「本次运行冻结的用例与依赖版本」——本期是把同样的写法补到 SIL 段。</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="blk">升级、停用、撤销是三件不同的事</h3>
+  <p class="hint">这三个词经常混着说，但<b>发起人、影响范围、对历史 Run 的处理都不一样</b>。
+    上一版只写了「停用」，容易被读成「发新版就把旧版关掉」。<b>发新版本本身不改变任何旧版本的状态。</b></p>
+  <div class="tw"><table class="rules">
+    <thead><tr><th style="width:11%">动作</th><th style="width:15%">谁发起</th><th style="width:23%">它到底做了什么</th><th style="width:21%">对已有引用</th><th>对历史 Run</th></tr></thead>
+    <tbody>
+      <tr><td><b>升级引用</b><br><span class="st s-info">引用方的动作</span></td>
+        <td>引用它的那个对象的负责人（评测配置负责人、场景集维护人）</td>
+        <td>把<b>某一处引用</b>从旧版指向新版。<b>逐处决定，平台不代劳、不批量替换。</b></td>
+        <td>只改这一处；其他引用不动。保存时显示范围变化（第 07 章）。</td>
+        <td>不影响。历史 Run 记录的是它当时实际用的版本。</td></tr>
+      <tr><td><b>停用版本</b><br><span class="st s-warn">资产所有者的动作</span></td>
+        <td>资产责任人 / 指标口径归口人</td>
+        <td>这一版<b>不再出现在选择列表里</b>，不能被<b>新建的</b>引用选中。已有引用不被强行切换。</td>
+        <td><b>继续可运行</b>，但引用处标「所引用版本已停用，建议升级」。</td>
+        <td>不影响，也不重算。</td></tr>
+      <tr><td><b>撤销发布</b><br><span class="st s-err">例外动作</span></td>
+        <td>资产责任人 + 归口人，<b>必须写原因并进审计</b></td>
+        <td>用于「这一版有严重问题，不该再被任何人使用」。除停用的效果外，还<b>禁止新 Run 使用它</b>，包括已有引用。</td>
+        <td>引用处变成<b>阻断项</b>，必须先换版本才能再跑（与第 07 章保存前检查同一套阻断语义）。</td>
+        <td>历史 Run <b>结论保留、不删除、不重算</b>，但结果页加一行「所用版本已撤销：<code>@1.0.5</code>，原因见审计」。</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note n-warn"><b>三者的共同规则：</b>都<b>不删除</b>任何版本，历史永远可追溯；都在资产的修订历史里留一行；
+    <b>只有撤销强制填原因</b>。<span class="fl fl-pm">建议、待确认</span><br>
+    需要研发确认的是<b>撤销怎么落地</b>——能不能在创建 Run 时真的拦住一个已撤销的版本，还是只能做界面提示。
+    <span class="fl fl-dev">工作量待研发估算</span></div>
+
+  <h3 class="blk">三个阶段</h3>
+  <div class="cap4">
+    <div>
+      <h5><span class="fl fl-p0">本期</span>让资产能进来，并且跑得出可信结论</h5>
+      <dl>
+        <dt>范围</dt><dd>第 03–05 章 + 第 06–09 章的衔接改动。整条链路走通：上传 → 试跑或发布 → 被配置选用 → 创建 Run → 看到结果。</dd>
+        <dt>验收</dt><dd>一个新场景从本地上传，到出现在某次 Run 的结果里，全程在界面上可追踪，中间不需要问人。</dd>
+        <dt>不做</dt><dd>Diff 页、集合详情页、跨资产治理视图、通知推送。</dd>
+      </dl>
+      <div class="ux">研发工作量另行估算。产品侧交付的是<b>建议规则与界面方案</b>，正式实现前需相关负责人确认。</div>
+    </div>
+    <div>
+      <h5><span class="fl fl-p1">下一阶段</span>让结果能被比较、被聚合</h5>
+      <dl>
+        <dt>范围</dt><dd>第 10 章对比、第 11 章评测集合详情页。本期定下的「有效条件」直接作为它的输入。</dd>
+        <dt>验收</dt><dd>能回答「这一版和基线比，哪个场景变差了、变差多少、可比不可比」。</dd>
+        <dt>依赖</dt><dd>本期的结论四态与有效条件必须先落地，否则聚合出来的数字没法解释。</dd>
+      </dl>
+      <div class="ux">第 10、11 章已有完整界面与使用流程，可以直接进入研发评估。</div>
+    </div>
+    <div>
+      <h5><span class="fl fl-p2">更后面</span>让资产长期可维护</h5>
+      <dl>
+        <dt>范围</dt><dd>第 12 章：跨资产待办与治理、审计可见性、到期复核、通知接入。</dd>
+        <dt>验收</dt><dd>资产变多以后，仍然能回答「谁负责、还有效吗、被谁用着」。</dd>
+        <dt>依赖</dt><dd>通知 Provider 配置、审计日志权限。</dd>
+      </dl>
+      <div class="ux">形态仍是候选方案，第 12 章同时给了「不新增导航项」的替代落点。</div>
+    </div>
+  </div>
+  <div class="note n-info"><b>界面与交互不排在某一期之后。</b>三个阶段的每一处改动都在本方案里画成了界面画面，
+    沿用正式站现有的组件（表格、弹窗、页内标签、状态徽标、三步向导）。<b>不存在「先做后端、界面以后再说」的部分</b>——
+    界面就是这几章要讨论的内容本身。</div>
+</section>
+
+<!-- ================= 01 正式站现状 ================= -->
+<section class="sec" id="today">
+  <div class="eyebrow">01 · 正式站现状（2026-09-09 实测）</div>
+  <h2>执行链路是通的，<br>断点在「资产怎么进来」和「结论算不算数」。</h2>
+  <p class="dek">先把现状钉住，避免把已经具备的能力讲成新功能，也避免把尚未具备的讲成已经上线。
+    下面每一条都是本轮在正式站上打开页面看到的，不是从文档推断的。测试站的内容不写在这里。</p>
+
+  <div class="stats">
+    <div class="hl"><strong>144</strong>次运行 · 运行列表已有执行状态与评测结论两列</div>
+    <div><strong>2</strong>个评测配置 · 各有版本历史与内容哈希</div>
+    <div><strong>4</strong>个已发布场景 · 1 个场景集 <code>Basic</code></div>
+    <div class="warn"><strong>1 + 1</strong>个计算器与判定标准（各 1 个不可变版本）</div>
+  </div>
+
+  <h3 class="blk">左侧导航：现在是一层平铺，本次改成四组</h3>
+  <p class="hint">左边是正式站现在的样子（本轮实测，十个导航项在同一个 <b>MEMENTOS 仿真评测</b> 标题下平铺，没有分组、没有数字）。
+    右边是本次方案。<b>导航项一个都没有改名，也没有删</b>，只做三件事：分组、缩进、加待办数字。右边那个灰色的「资产工作台」是<b>下一阶段的候选项，本期不做</b>，画在这里只是为了说明分组以后它会落在哪一组。
+    后面每一章的设计画面都套在右边这套框架里。</p>
+
+  <div class="screen">
+    <div class="cap"><span class="nm">设计画面</span><span>侧边导航 · 左：正式站现状 ／ 右：本次分组后</span>
+      <span class="st s-line">左侧为实测，右侧为方案</span></div>
+    <div class="body"><div class="pbody"><div class="navcmp">
+
+      <div>
+        <div class="hd"><span class="fl fl-now">正式站现状</span>一层平铺 · 10 项 · 无分组无数字</div>
+        <aside class="side">
+          <div class="logo"><div class="r">R</div><b>RoboTruck Matrix</b></div>
+          <div class="prod" style="color:var(--g500)">ROADSENSE</div>
+          <div class="prod" style="color:var(--g500)">SCENE HUNTER</div>
+          <div class="prod" style="color:var(--g500)">CLAYMORE</div>
+          <div class="prod">MEMENTOS 仿真评测</div>
+          <div class="sitem fl2">运行</div>
+          <div class="sitem fl2">评测集合</div>
+          <div class="sitem fl2">评测配置</div>
+          <div class="sitem fl2">指标注册表</div>
+          <div class="sitem fl2">闭环仿真用例</div>
+          <div class="sitem fl2">开环仿真用例</div>
+          <div class="sitem fl2">台架测试用例</div>
+          <div class="sitem fl2">评测用例执行器</div>
+          <div class="sitem fl2">自动触发</div>
+          <div class="sitem fl2">审计日志</div>
+          <div class="prod" style="color:var(--g500);padding-top:10px">AI 技能</div>
+          <div class="prod" style="color:var(--g500)">权限管理</div>
+          <div class="dom" style="border:0;margin:12px 0 0;padding:10px 8px 0;border-top:1px solid var(--line)">
+            顺序就是上面这个顺序。「权限管理」是折叠的，本账号看不到下级项——
+            <b>正式站和测试站都有这一组</b>。</div>
+        </aside>
+      </div>
+
+      <div>
+        <div class="hd"><span class="fl fl-new">本次方案</span>四组 · 11 项 · 带待办数字</div>
+        <aside class="side">
+          <div class="logo"><div class="r">R</div><b>RoboTruck Matrix</b></div>
+          <div class="dom">RoadSense · Scene Hunter · Claymore<br>AI 技能 · 权限管理</div>
+          <div class="prod">MEMENTOS 仿真评测</div>
+
+          <div class="sgrp">运行与分析<span class="nb">分组为本次新增</span></div>
+          <div class="sitem">运行</div>
+          <div class="sitem">评测集合</div>
+
+          <div class="sgrp">评测准备</div>
+          <div class="sitem">评测配置</div>
+          <div class="sitem">自动触发</div>
+
+          <div class="sgrp">资产与用例</div>
+          <div class="sitem nw">资产工作台<span class="tag">候选 · 下一阶段</span><span class="bdg">4</span></div>
+          <div class="sitem">指标注册表<span class="bdg">2</span></div>
+          <div class="sitem on">闭环仿真用例<span class="bdg">2</span></div>
+          <div class="sitem">开环仿真用例</div>
+          <div class="sitem">台架测试用例</div>
+
+          <div class="sgrp">平台管理</div>
+          <div class="sitem">评测用例执行器</div>
+          <div class="sitem">审计日志</div>
+
+          <div class="dom" style="border:0;margin:14px 0 0;padding:10px 8px 0;border-top:1px solid var(--line)">
+            绿色是当前选中项；红点数字<b>只统计要本人动手的事项数</b>（待我评审、我提交的有错误、被打回；按对象去重，一个对象算一件）——
+            治理类提示不进红点，否则它会一直亮着；各页面角标相加应等于汇总入口的角标（2 + 2 = 4，第 12 章）；
+            「自动触发」从原来的第 9 位移到「评测准备」组，因为它是<b>什么时候跑</b>，属于跑之前要配的事。</div>
+        </aside>
+      </div>
+
+    </div></div></div>
+  </div>
+
+  <div class="chg">
+    <div><div class="t">② 现状</div><div class="c"><b>10 项平铺</b>同一个标题下按运行、集合、配置、注册表、三类用例、执行器、自动触发、审计的顺序排列，没有层级，也没有任何提醒数字。</div></div>
+    <div><div class="t">③ 本次改动</div><div class="c"><b>只分组，不改名</b>四个分组标题 + 缩进 + 待办数字；「自动触发」换到「评测准备」组。<b>没有任何导航项被改名或删除，本期也不新增导航项</b>（「资产工作台」是下一阶段的候选项，见第 12 章）。</div></div>
+    <div><div class="t">⑤ 为什么这样改</div><div class="c"><b>知道从哪开始</b>新人能看出「先准备、再跑、再分析」；有待办时导航上就能看到，不用逐页翻。</div></div>
+    <div><div class="t">⑥ 本期与后续边界</div><div class="c"><b>两项</b>① 分组标题的最终措辞 <span class="fl fl-pm">待产品决策</span>
+      ② 待办数字的口径（只算「待我处理」还是全部）与刷新方式 <span class="fl fl-dev">待研发确认</span></div></div>
+  </div>
+
+  <div class="note n-warn"><b>面包屑要单独定一下。</b>正式站的面包屑是<b>按路由生成的英文</b>，例如闭环仿真用例页显示
+    <code>Mementos • Sil • Closed Loop • Cases</code>，Run 详情显示 <code>Mementos • Runs • Run C03d0dd5</code>。
+    本方案画面顶部使用中文的 <code>MEMENTOS 仿真评测 / 闭环仿真用例</code>，右侧同时标出正式站的真实面包屑，两者都能看到。
+    <b>要不要把面包屑改成和导航一致的中文，需要产品决策</b>——这是一次全站改动，不只影响 Mementos。
+    <span class="fl fl-pm">待产品决策</span></div>
+
+  <div class="tw"><table class="rules">
+    <thead><tr><th style="width:16%">导航（左侧 MEMENTOS 仿真评测）</th><th style="width:44%">本轮实测到的现状</th><th>本次方案落在这个页面的哪个位置</th></tr></thead>
+    <tbody>
+      <tr><td>运行<br><code>/mementos/runs</code></td>
+        <td>共 <b>144</b> 条（8 页 × 20；这个数字每天在涨，本方案里出现的运行总数都以 2026-09-09 实测为准）。列：Run（名称 + <code>run-c03d0dd5</code> 形式的 ID）、分支、PR、提交、创建人、<b>执行状态</b>（已完成 / 已取消 / 未能完成）、<b>评测结论</b>（通过 / —）、闭环仿真场景（4/4）、创建时间、耗时。筛选：搜索、创建人、执行状态、分支、被测对象。<br>
+          「新建运行」是三步向导：<b>目标 → 内容 → 冻结与摘要</b>。第二步可「从场景集开始」预填场景，可增删，留空则跑全部未废弃的已发布场景；有「高级 / 可选覆盖项」（载具、版本、地图）；第三步给运行摘要，并有「强制新建运行，不复用相同结果」。</td>
+        <td>Run 详情页内改「评测结论」的取值与解释（第 09 章）；向导第二步加阻断项与版本锁定提示、第三步的摘要补精确版本（第 08 章）。<span class="fl fl-new">改现有页面</span></td></tr>
+      <tr><td>Run 详情<br><code>/mementos/runs/{id}</code></td>
+        <td>右侧目录已有六段：运行信息、工作流、检查项、场景结果、执行详情、与基准 Run 对比。<br>
+          检查项表已区分<b>执行</b>与<b>质量</b>两列，并有「重试」按钮和 Cloud Build 链接。场景结果里每个场景都展开了「指标计算器执行情况」（<code>collision@1.0.4</code> · OK）、「描述符输出」（<code>collision_count 0 episodes</code> 等三个字段）、「判定标准结果」（<code>collision-free@1</code> · 通过 · 观测值：0 · 阈值：0 · 原因：comparison passed）、指标证据 URI、Cloud Replay / JavelinFlow / 视频任务链接、视频过期日期，以及<b>来源：<code>scene-draft:draft-da77bfae</code></b>。<br>
+          执行详情里有车辆配置、每场景的地图版本、仿真镜像摘要和<b>配置快照哈希</b>。</td>
+        <td>不动这六段的结构。在「运行信息」补结论三态与有效分母，在「场景结果」补缺证据 / 无有效结果的表达（第 09 章）。<span class="fl fl-new">改现有区域</span></td></tr>
+      <tr><td>评测集合<br><code>/mementos/run-sets</code></td>
+        <td>入口和「新建评测集合」都在，列表为空，空态写「创建一个来分组并比较多候选版本的 Run」。新建对话框字段：名称 *、描述、初始 Run（可选，从最近的 Run 中搜索选择，按顺序添加）。</td>
+        <td>集合详情页从零建：Scene × Run 矩阵、趋势、稳定性、覆盖率、进入对比的入口（第 11 章）。<span class="fl fl-new">已有入口，详情待建</span></td></tr>
+      <tr><td>评测配置<br><code>/mementos/evaluation-profiles</code></td>
+        <td>2 个配置（各取最新版本）：<code>Develop / Latest</code> v3 · active · 评测数 15 · 7 个阶段（Foundation: Compile / Unit Tests / Coverage，SIL: Build Simulation Image / Closed-loop Simulation，Bench: Build Onboard Image / Bench Test）；<code>PnC PR Regression</code> v3 · active · 评测数 10 · 5 个阶段。<br>
+          「版本历史」对话框已有：每个版本的内容哈希、<b>被 N 次评测使用</b>、创建人时间、阶段清单，以及版本间的变化摘要（例如 <code>benchTestCase: — → bench-71e2a71d40fc</code>、<code>No semantic changes</code>）。</td>
+        <td>配置详情页（目前只有列表 + 版本历史弹窗）补引用树、完整性检查、升级影响（第 07 章）。<span class="fl fl-new">补页面内新区域</span></td></tr>
+      <tr><td>指标注册表<br><code>/mementos/metric-registry</code></td>
+        <td>两个表。指标计算器：1 个不可变版本 <code>collision@1.0.4</code>，列有精确标识、<b>生命周期（启用）</b>、软件包 <code>rt-metric-calculator-collision@1.0.4-1</code>、计算出的指标（3 个字段带单位）。判定标准：1 个不可变版本 <code>collision-free@1</code>，列有指标计算器、字段、判定条件 <code>EQ 0</code>、失败严重度（失败）、<b>缺失策略（缺失时失败）</b>、说明。</td>
+        <td>两个表都加「草稿 / 待评审」区与评审面板；生命周期列已存在，补责任人、校验证据、适用范围、被引用数（第 04–05 章）。<span class="fl fl-new">加页内区域</span></td></tr>
+      <tr><td>闭环仿真用例<br><code>/mementos/sil/closed-loop/cases</code></td>
+        <td>页面标题是<b>场景库</b>，含三段：<b>Scene 草稿</b>（当前 0 个有效草稿，空态「暂无有效 Scene 草稿」）、<b>闭环仿真用例</b>（共 4 个：<code>example</code>、<code>left_lc_3ln_sv</code>、<code>right_lc_3ln_sv</code>、<code>staticfront</code>；列：名称、用途、平台标签、状态（已发布）、操作（详情））、<b>场景集</b>（共 1 个：<code>Basic</code>，4 个场景，被 6 个 Evaluation Profile 引用）。<br>
+          场景「详情」是弹窗：名称、状态、用途、车辆配置、<b>校验状态 validated</b>、Case 内容哈希、Schema 内容哈希。</td>
+        <td>草稿区补校验结果与提交评审；场景详情弹窗补绑定的指标、责任人、修订历史、被谁引用；场景集补版本与成员修订（第 03–06 章）。<span class="fl fl-new">改现有区域</span></td></tr>
+      <tr><td>评测用例执行器<br><code>/mementos/eval-case-executors</code></td>
+        <td>7 个执行器（Cloud Build / JavelinFlow / rtferry），列已有<b>负责人（platform）、生命周期（已发布）、健康状态（健康）</b>。表头有一列未翻译，显示为 <code>colUpdatedAt</code>。</td>
+        <td>不改功能。这张表是本次资产治理列的<b>现成范式</b>：负责人 + 生命周期 + 健康状态，资产表照它对齐。<span class="fl fl-none">本轮不展开</span></td></tr>
+      <tr><td>自动触发<br><code>/mementos/automation/*</code></td>
+        <td>四个页内标签：规则、活动、<b>治理</b>、PR 启动策略。规则 1 条 <code>latest-version-evaluation</code>（运行中，线上版本 r3）。治理标签里已有 Kill Switch + <b>操作原因</b>输入、Webhook 健康度（待处理 / 处理中 / 失败 / 死信）、权限说明「平台管理员或 Mementos Automation Admin」，并写明<b>通知 Provider 状态：not_configured</b>。</td>
+        <td>不改。但两件事直接影响本方案：治理标签是「操作要写原因 + 明确写出需要什么角色」的现成范式；<b>通知未配置</b>意味着「通知评审人」这一步现在没有底座。<span class="fl fl-dev">依赖待确认</span></td></tr>
+      <tr><td>审计日志<br><code>/mementos/audit-log</code></td>
+        <td>入口在，但当前账号打开是「共 0 条记录」+ 英文空态 <code>Insufficient permissions</code>。也就是说：<b>能不能看、看到什么，本轮无法从界面确认。</b></td>
+        <td>沿用这个入口，不新建审计页。改动只有两条：空态说清缺什么权限找谁申请；补要记录的动作与前后值（第 12 章）。<span class="fl fl-dev">记录范围待研发确认</span></td></tr>
+      <tr><td>开环仿真用例 / 台架测试用例</td>
+        <td>开环：用例与运行都为空。台架：1 个用例 <code>bench-71e2a71d40fc</code> · <code>clip27352-vehicle-V002-20260818</code> · 已发布（正是 <code>Develop / Latest</code> v3 里新增的那一个）。</td>
+        <td>本轮只做闭环场景 + 指标资产。状态主干设计成后续能套到这两类用例上，但本方案不画它们的界面。<span class="fl fl-none">本轮不展开</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="blk">十步链路：哪几步已经通，哪几步是断的，各在哪一期</h3>
+  <p class="hint">深色是平台外的本地工具；绿色是正式站已经能走通的；黄色是要补的。每一格右上角标了分期。<b>本期覆盖 STEP 1 到 STEP 7 整条</b>——不是只做到发布。</p>
+  <div class="flow">
+    <div class="fs out"><div class="n">STEP 0</div><div class="t">本地生产与上传</div><div class="s">Yasha 编场景、mona metrics 写计算器；CLI 上传</div></div>
+    <div class="fs gap"><div class="n">STEP 1 · 第 03 章 <span class="fl fl-p0">本期</span></div><div class="t">上传后去哪</div><div class="s">草稿区在，界面上看不到校验结论与失败原因</div></div>
+    <div class="fs gap"><div class="n">STEP 2 · 第 04 章 <span class="fl fl-p0">本期</span></div><div class="t">谁审、按什么审</div><div class="s">三类资产的评审重点不同，目前都没有</div></div>
+    <div class="fs gap"><div class="n">STEP 3 · 第 05 章 <span class="fl fl-p0">本期</span></div><div class="t">发布与采用</div><div class="s">有「已发布」状态，没有「发布了但没人用」</div></div>
+    <div class="fs has"><div class="n">STEP 4 · 第 06 章 <span class="fl fl-p0">本期衔接</span></div><div class="t">加入场景集</div><div class="s">场景集在、已被 6 个配置引用；缺成员修订</div></div>
+    <div class="fs has"><div class="n">STEP 5 · 第 07 章 <span class="fl fl-p0">本期衔接</span></div><div class="t">组装评测配置</div><div class="s">版本历史与内容哈希都有，本期不重建</div></div>
+    <div class="fs has"><div class="n">STEP 6 · 第 08 章 <span class="fl fl-p0">本期</span></div><div class="t">创建 Run</div><div class="s">三步向导已有「冻结与摘要」，缺阻断提示</div></div>
+    <div class="fs has"><div class="n">STEP 7 · 第 09 章 <span class="fl fl-p0">本期</span></div><div class="t">看结果</div><div class="s">六段结构与指标证据都有，缺结论四态与分母</div></div>
+    <div class="fs has"><div class="n">STEP 8 · 第 10 章 <span class="fl fl-p1">下一阶段</span></div><div class="t">与基准 Run 对比</div><div class="s">已能对比 check 与场景，缺可比性与数值变化</div></div>
+    <div class="fs gap"><div class="n">STEP 9 · 第 11–12 章 <span class="fl fl-p1">下一阶段</span></div><div class="t">评测集合与维护</div><div class="s">集合为空；待办与审计权限缺口</div></div>
+  </div>
+
+  <div class="note n-warn"><b>五条容易被讲错的现状，先说清：</b>
+    ① 执行状态和评测结论<b>已经是两列</b>，本次不是「拆分状态与结论」，而是给结论补取值和分母；
+    ② 创建 Run <b>已经能从场景集批量预填</b>，本次不是「解决逐个勾选」，而是解决「预填的是哪一版、有阻断项时能不能拦住」；
+    ③ 正式站 Run 里场景的<b>来源就是草稿</b>（<code>scene-draft:draft-…</code>），所以「草稿能不能跑」不是提案，是现状——本次要定的是它算不算正式结果；
+    ④ 运行列表<b>已经有搜索和筛选</b>（搜索、创建人、执行状态、分支、被测对象），本次不做「加筛选」；
+    ⑤ <b>版本冻结不是新概念</b>：指标计算器和判定标准已经是不可变版本，Run 详情台架段自己就写着「本次运行冻结的用例与依赖版本，不随后续更新而变化」。本次是把这个已有做法补齐到场景和 SIL 段。</div>
+
+  <h3 class="blk">这次专门核实过的三条说法：两条要改写，一条标待核实</h3>
+  <p class="hint">上一版里有三处结论下得太早。本轮做了针对性的只读复核（场景库、评测配置、指标注册表、一个完整的 Run 详情），结论如下。
+    <b>页面上没有显示，不等于后端没有能力</b>——凡是从界面无法判断的，一律标「待核实」，不写成缺陷。</p>
+  <div class="tw"><table class="rules">
+    <thead><tr><th style="width:17%">上一版的说法</th><th style="width:12%">复核结论</th><th style="width:38%">实测看到的</th><th>因此本方案怎么写</th></tr></thead>
+    <tbody>
+      <tr><td>「上传后没有回执」</td>
+        <td><span class="fl fl-chk">要改写</span></td>
+        <td>草稿区标题写的是<b>「0 个有效草稿」</b>，空态写<b>「暂无有效 Scene 草稿」</b>——「有效」这个词说明后端已经在区分有效与无效。场景详情弹窗里也已经有 <b>校验状态 validated</b> 和两个内容哈希。</td>
+        <td>不写「没有回执」。改写成：<b>草稿的校验结论与失败原因没有在界面上呈现</b>，「有效」的判定规则也没有写明。后端是否已有这些记录 <span class="fl fl-chk">待核实</span></td></tr>
+      <tr><td>「引用的不是固定版本」</td>
+        <td><span class="fl fl-err" style="background:var(--err-bg);color:var(--err-d)">不成立，要改写</span></td>
+        <td>指标计算器 <code>collision@1.0.4</code>、判定标准 <code>collision-free@1</code> 都标着<b>「1 个不可变版本」</b>；评测配置有版本号与内容哈希；Run 详情记录了<b>评测配置 <code>Develop / Latest · v3</code></b>、每场景的地图版本、仿真镜像 <code>sha256:…</code> 摘要、<code>rtpkg-cli</code> 与 <code>rtasset</code> 的冻结版本、配置快照哈希，台架段还有一句「本次运行冻结的用例与依赖版本，不随后续更新而变化」。</td>
+        <td>本方案改成<b>四个更窄的缺口</b>：㈠ 场景没有精确修订，只有内容哈希；㈡ 场景集没有版本；㈢ 执行详情里判定标准显示为一段描述文字，不是 <code>collision-free@1</code> 这样的精确标识；㈣ SIL 段没有台架段那句冻结声明。</td></tr>
+      <tr><td>「负责人不参与权限判断」</td>
+        <td><span class="fl fl-chk">待核实</span></td>
+        <td>场景表和指标注册表两张表<b>都没有责任人列</b>；评测用例执行器表有「负责人 platform」但只是展示。界面上看不出权限是否用到这个字段。</td>
+        <td>不下结论。第 04 章按「角色决定能做哪类动作、对象归属决定能对哪个资产动手」来设计，并把<b>「负责人字段是否已参与权限判断」列为需要向研发确认的依赖</b>。</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="blk">一个已经存在的真实例子：结论「通过」，但台架有 1 个 FATAL</h3>
+  <p class="hint">这一条不是设想，是本轮在正式站 Run <code>run-b2ce0262</code> 里看到的。它是第 09 章要解决的问题的最好证据。</p>
+  <div class="two">
+    <div>
+      <div class="tw"><table class="rules">
+        <thead><tr><th style="width:30%">这个 Run 上显示的</th><th>值</th></tr></thead>
+        <tbody>
+          <tr><td>执行状态</td><td>已完成</td></tr>
+          <tr><td>评测结论</td><td><b>通过</b></td></tr>
+          <tr><td>闭环仿真场景</td><td>4/4，四个场景判定标准都通过</td></tr>
+          <tr><td>检查项 · 质量列</td><td>Build Simulation Image、Build Onboard Image、Bench Test 三项都是 <b>「—」</b></td></tr>
+          <tr><td>Bench Test 展开后</td><td><b>4 个组件错误占比 100%</b>（camera31 <code>output channel not alive</code>，三个 lidar_correction 的 p95 延迟超阈值）；组件健康状态里 <b>1 个 FATAL + 4 个 ERROR</b></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="aside">
+      <h4>这说明两件事</h4>
+      <dl>
+        <dt>「—」已经在承担多个含义</dt>
+        <dd>同一个「—」既表示<b>不适用</b>（镜像复用，没触发构建），也出现在<b>没测成</b>和<b>被取消</b>的行上。不需要发明新符号，需要的是<b>把这三种情况分开</b>。</dd>
+        <dt>结论口径没有覆盖已经产出的信息</dt>
+        <dd>台架的问题被完整记录下来了，但没有进入「评测结论」。第 09 章要定的就是：<b>哪些信息决定结论、哪些只作为原因展示</b>。</dd>
+      </dl>
+      <p class="mute" style="margin:12px 0 0;font-size:12.5px">同一个 Run 里还有一处值得注意：四个场景用了两个不同的地图版本
+        （<code>example</code> 用 <code>@2026.02.01-01</code>，另外三个用 <code>@2026.02.10-00</code>）。<b>记录下来了，但界面没有提示这件事</b>。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 02 对象与命名 ================= -->
+<section class="sec" id="model">
+  <div class="eyebrow">02 · 对象与命名对照</div>
+  <h2>先把名字对上，<br>后面十章才不用猜。</h2>
+  <p class="dek">这一章只有一个用途：本方案里出现的每一个名词，对应正式站上的哪个页面标题或字段名。
+    凡是与正式站叫法不一致的说法，都在这里显式映射。看后面章节时如果对某个词有疑问，回到这张表。</p>
+
+  <div class="tw"><table>
+    <thead><tr><th style="width:20%">本方案用词</th><th style="width:26%">正式站上的名字与位置</th><th style="width:26%">是否为同一对象</th><th>本方案里的例子</th></tr></thead>
+    <tbody>
+      <tr><td class="main">场景 / Scene</td><td>导航「闭环仿真用例」页面标题为<b>场景库</b>，表名<b>闭环仿真用例</b></td>
+        <td>同一个。本方案说「场景库」时指这个页面，说「场景」时指表里的一行。</td><td><code>merge_slow_lead_sv</code></td></tr>
+      <tr><td class="main">Scene 草稿</td><td>场景库页面第一段，标题<b>Scene 草稿</b></td>
+        <td>同一个。正式站已有，当前 0 个有效草稿。</td><td><code>draft-9c41f0ab</code></td></tr>
+      <tr><td class="main">场景集</td><td>场景库页面第三段，标题<b>场景集</b></td><td>同一个。<code>Basic</code> 是正式站真实存在的唯一一个。</td>
+        <td><code>Basic</code> v1 → v2</td></tr>
+      <tr><td class="main">指标计算器 / Calculator</td><td>导航「指标注册表」第一张表<b>指标计算器</b></td>
+        <td>同一个。正式站有 1 个不可变版本。</td><td><code>lateral-clearance@1.0.0</code></td></tr>
+      <tr><td class="main">判定标准 / Criterion</td><td>导航「指标注册表」第二张表<b>判定标准</b></td>
+        <td>同一个。本方案不再用「门禁规则」这种叫法。</td><td><code>clearance-min@1</code></td></tr>
+      <tr><td class="main">评测配置 / Profile</td><td>导航「评测配置」，列表项即 <b>Evaluation Profile</b></td>
+        <td>同一个。场景集页面里的「被 6 个 Evaluation Profile 引用」就是它。</td><td><code>PnC PR Regression</code> v3 → v4</td></tr>
+      <tr><td class="main">Run / 运行</td><td>导航「运行」，详情页 <code>/mementos/runs/{id}</code></td><td>同一个。</td><td><code>run-3f77a1c2</code></td></tr>
+      <tr><td class="main">评测集合 / Run Set</td><td>导航「评测集合」<code>/mementos/run-sets</code></td>
+        <td>同一个。统一以正式站的<b>评测集合</b>为准，不再使用「Run Set」这一叫法。</td><td><code>低速避障稳定性</code></td></tr>
+      <tr><td class="main">冻结输入</td><td>创建运行向导第三步标题就是<b>冻结与摘要</b>；Run 详情「执行详情」里有<b>配置快照哈希</b></td>
+        <td>是同一件事的两个面。本方案不发明新概念，只是把「这次到底用了哪些精确版本」这份清单显式列出来。</td>
+        <td>哈希 <code>7c1de90a4b2f</code></td></tr>
+      <tr><td class="main">资产工作台</td><td><b>正式站没有这个页面。</b></td>
+        <td class="mute"><b>候选形态，不是本期结论。</b>它只是跨模块待办的汇总视图，<b>不存放资产</b>；每一行点进去回到场景库或指标注册表的原详情。
+          第 12 章同时给出了不新增导航项的替代落点（各资产页面内的「待我处理」筛选）。</td>
+        <td><span class="fl fl-p1">下一阶段</span> <span class="fl fl-pm">形态待确认</span></td></tr>
+      <tr><td class="main">评测结论 = 无法判定</td><td>运行列表<b>评测结论</b>这一列已存在，现在的取值是「通过」和「—」</td>
+        <td>不是新列，是给已有列增加一个明确取值，并把「—」的含义说清。</td><td>见第 09 章</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="blk">三类资产的对象关系（本方案只覆盖闭环场景与指标资产）</h3>
+  <div class="map">
+    <div class="col">
+      <div class="ctit">本地生产（平台外）</div>
+      <div class="ob"><div class="obt">场景文件</div><div class="obd">Yasha 编辑，CLI 上传</div>
+        <span class="st s-mute">平台不负责生产</span></div>
+      <div class="ob"><div class="obt">计算器软件包</div><div class="obd">mona metrics 构建，产出 <code>rt-metric-calculator-*</code></div>
+        <span class="st s-mute">平台不负责构建</span></div>
+    </div>
+    <div class="link">上传 →</div>
+    <div class="col">
+      <div class="ctit">平台内的资产（可复用、可引用）</div>
+      <div class="ob"><div class="obt">Scene</div><div class="obd">场景库 · 已发布 4 个</div><span class="st s-ok">正式站已有</span></div>
+      <div class="ob"><div class="obt">场景集</div><div class="obd">场景库 · <code>Basic</code>，被 6 个配置引用</div><span class="st s-ok">正式站已有</span></div>
+      <div class="ob"><div class="obt">Calculator / Criterion</div><div class="obd">指标注册表 · 各 1 个不可变版本</div><span class="st s-ok">正式站已有</span></div>
+      <div class="ob"><div class="obt">评测配置</div><div class="obd">2 个 · 有版本历史与内容哈希</div><span class="st s-ok">正式站已有</span></div>
+    </div>
+    <div class="link">被引用 →</div>
+    <div class="col">
+      <div class="ctit">一次次的执行与结论</div>
+      <div class="ob"><div class="obt">Run</div><div class="obd">一次评测 · 144 条</div><span class="st s-ok">正式站已有</span></div>
+      <div class="ob"><div class="obt">与基准 Run 对比</div><div class="obd">两次之间的变化 · Run 详情页内</div><span class="st s-ok">正式站已有</span></div>
+      <div class="ob"><div class="obt">评测集合</div><div class="obd">多次的趋势与稳定性 · 目前为空</div><span class="st s-warn">入口已有，详情待建</span></div>
+    </div>
+  </div>
+  <div class="note n-mute"><b>一句话记法：</b>Scene、Calculator、Criterion、场景集、评测配置是<b>资产</b>，被反复引用，所以要有责任人和版本；
+    Run、对比、评测集合是<b>事件与结论</b>，不该被改，只该被解释。本次改动全部落在这两类对象各自应有的属性上。</div>
+
+  <h3 class="blk">两条路径：自己验证，和让别人也能用</h3>
+  <p class="hint">这是本方案最重要的一处结构。<b>人工评审不是所有试跑的前置条件</b>——开发者调自己的东西，用草稿直接跑就行，
+    这是正式站现在的做法（4 个已发布场景的来源都是 <code>scene-draft:draft-…</code>）。只有当这个资产要<b>成为别人也会引用的正式资产</b>时，才走校验、评审、发布。</p>
+
+  <div class="paths a1">
+    <div>
+      <div class="pt">路径 A · 自己验证（不需要评审）</div>
+      <div class="pd">谁在用：正在改场景或改计算器的开发者。目的是「我这版对不对」。</div>
+      <div class="life" style="margin:0">
+        <span class="p a"><span class="i">1</span>上传成 草稿</span><span class="arrow">→</span>
+        <span class="p a"><span class="i">2</span>自动校验（有结论就够）</span><span class="arrow">→</span>
+        <span class="p a"><span class="i">3</span>用草稿创建 Run</span><span class="arrow">→</span>
+        <span class="p a"><span class="i">4</span>看结果，改，再跑</span>
+      </div>
+      <div class="note n-ok" style="margin:14px 0 0"><b>本期只补一件事：</b>草稿卡片上把校验结论和失败原因显示出来，
+        并在这张卡片上直接给「用这个草稿试跑」的入口。<b>但校验失败不是一概放行</b>：
+        <b>警告级不阻断试跑</b>，结果里标明「输入来自带警告的草稿」；<b>错误级连试跑也不放行</b>——
+        像「引用的载具配置版本不存在」这种，跑起来只会换来一次失败的运行，还占执行资源。
+        <br><b>没有错误时，这个循环可以跑很多次，全程不需要任何人审批。</b></div>
+      <div class="note n-mute" style="margin:10px 0 0">这条路径产出的 Run <b>不能</b>作为对外结论或基线（第 09 章有对应的标注方式），但<b>照常保留在历史记录里</b>。</div>
+    </div>
+    <div>
+      <div class="pt">路径 B · 成为可复用的正式资产（需要评审）</div>
+      <div class="pd">谁在用：想让自己的场景/指标进入公共库、被评测配置引用的人。目的是「别人也能放心用」。</div>
+      <div class="life" style="margin:0">
+        <span class="p a"><span class="i">1</span>草稿</span><span class="arrow">→</span>
+        <span class="p a"><span class="i">2</span>校验无错误（<b>警告可带着提交</b>）</span><span class="arrow">→</span>
+        <span class="p a"><span class="i">3</span>提交评审</span><span class="arrow">→</span>
+        <span class="p a"><span class="i">4</span>已发布</span><span class="arrow">→</span>
+        <span class="p"><span class="i">5</span>已采用（被至少一个配置引用）</span><span class="arrow">→</span>
+        <span class="p"><span class="i">6</span>已停用</span>
+      </div>
+      <div class="note n-warn" style="margin:14px 0 0"><b>有错误就不能提交评审</b>，避免评审人替机器做检查；
+        <b>只有警告时可以提交</b>，但警告条目要原样显示在评审页上，由评审人决定接受还是打回。<span class="fl fl-pm">建议、待确认</span>
+        评审对象是一个<b>具体修订</b>；提交后又改内容，批准即失效（见★全景图的四条最小版本规则）。</div>
+      <div class="note n-mute" style="margin:10px 0 0">第 5、6 步是<b>下一阶段</b>：正式站现在有「已发布」状态和「生命周期：启用」列，
+        但没有「发布了却没人用」和「该停用了」的表达。<span class="fl fl-p1">下一阶段</span><br>
+        <b>第 6 步不会自动发生</b>：发一个新版本不会把旧版本变成已停用。停用和撤销都是有人显式发起的动作，
+        和「升级引用」也不是一回事——三者的定义见 ★ 全景图。</div>
+    </div>
+  </div>
+  <div class="note n-info"><b>两条路径共用同一个草稿对象，不是两套东西。</b>同一张草稿卡片上有两个动作：「试跑」和「提交评审」。
+    路径 A 在没有错误时随时可用；路径 B 需要没有错误才亮起（警告不拦，只是要给评审人看）。这样开发者的日常迭代不会被评审拖住，而公共库的入口仍然有人把关。</div>
+
+  <h3 class="blk">三类资产的评审必要性不同，评审内容也不同</h3>
+  <p class="hint">「都要评审」是错的，「都不要评审」也是错的。区别在于<b>一个资产出错时，影响面有多大、能不能靠自动校验发现</b>。</p>
+  <div class="tw"><table class="rules">
+    <thead><tr><th style="width:13%">资产</th><th style="width:12%">要不要人工评审</th><th style="width:26%">为什么</th><th style="width:27%">评审人要看什么（评审内容）</th><th>谁来审</th></tr></thead>
+    <tbody>
+      <tr><td class="main">场景<br>Scene</td>
+        <td><b>轻量评审</b><br><span class="fl fl-pm">建议、待确认</span></td>
+        <td>场景写错通常只影响引用它的那几次评测，而且格式问题自动校验已经能查（<code>校验状态 validated</code>、Schema 内容哈希）。<b>需要人看的是「这个场景想验证什么、名字和用途说清了没有」</b>——这决定别人会不会误用它。</td>
+        <td>用途描述是否说清验证意图；名称是否可读（正式站现在 144 次运行里有 17/20 抽样是<b>「未命名」</b>，同一个毛病在场景上会更麻烦）；是否与已有场景重复；车辆配置与地图是否合理。<b>不要求评审人逐帧看轨迹。</b></td>
+        <td>同组的另一位场景作者；或场景库负责人。</td></tr>
+      <tr><td class="main">指标计算器<br>Calculator</td>
+        <td><b>必须评审</b><br><span class="fl fl-pm">建议、待确认</span></td>
+        <td>计算器决定<b>数值怎么算出来的</b>。算错了，所有引用它的场景、所有历史趋势一起错，而且自动校验查不出「口径错」，只能查「跑不起来」。这是三类里返工代价最大的。</td>
+        <td>指标定义与单位是否明确（正式站已经在展示 <code>collision_count · episodes</code> 这样的字段+单位，评审就照这个粒度看）；边界情况怎么处理；与已有计算器是否口径冲突；软件包版本是否为发布版。</td>
+        <td>指标口径的归口人（平台侧）+ 提出这个指标的业务方。<b>两方都要点头</b>，因为一方懂算法、一方懂含义。</td></tr>
+      <tr><td class="main">判定标准<br>Criterion</td>
+        <td><b>必须评审</b><br><span class="fl fl-pm">建议、待确认</span></td>
+        <td>判定标准决定<b>什么算通过</b>，直接改变结论，也直接影响是否拦代码。改一个阈值就可能让一批历史 Run 的结论翻转。</td>
+        <td>阈值和判定条件的依据（<code>EQ 0</code> 这种要说清为什么）；<b>失败严重度</b>与<b>缺失策略</b>选得对不对（这两列正式站已经有了：现在是「失败」+「缺失时失败」）；影响面——会拦住哪些流程。</td>
+        <td>判定标准的归口人 + 会被它拦住的那条流程的负责人。</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note n-mute"><b>场景集与评测配置不在这张表里</b>，因为它们是「选用已有资产的组合」，成员本身都已评审过。
+    它们需要的是<b>变更可见</b>（谁在什么时候把哪一版换成了哪一版），不是再审一遍。正式站的配置版本历史已经有变化摘要
+    （例如 <code>benchTestCase: — → bench-71e2a71d40fc</code>），本期沿用它。</div>
+</section>
+
+<!-- ================= 03 上传后去哪 ================= -->
+<section class="sec" id="s1">
+  <div class="eyebrow">03 · STEP 1 · 上传之后，资产在哪</div>
+  <h2>提交人上传了 <code>merge_slow_lead_sv</code>，<br>接下来应该在平台上看到什么。</h2>
+
+  <div class="path"><span class="lb">位置</span>
+    <span>导航 <b>闭环仿真用例</b></span><span class="sep">→</span>
+    <span>页面 <b>场景库</b> <code>/mementos/sil/closed-loop/cases</code></span><span class="sep">→</span>
+    <span class="cur">区域 <b>Scene 草稿</b>（页面第一段，正式站已有）</span>
+    <span class="lb" style="margin-left:auto">改现有区域</span>
+  </div>
+
+  <div class="six">
+    <div class="prob"><div class="k"><span class="dot"></span>① 谁在使用</div><div class="v">
+      <b>提交人 <code>user.a</code>（规划场景组）</b>，刚用 CLI 上传完一个场景，终端回了一行 OK。
+      他来这一页是想确认两件事：<b>东西到了吗</b>、<b>我下一步该干什么</b>。
+      现在这两件事在界面上都看不到，所以他只能私下追问「我这个场景传上去了吗，要谁审」。</div></div>
+    <div class="now"><div class="k"><span class="dot"></span>② 在正式站哪个位置</div><div class="v">
+      <b>闭环仿真用例 → 场景库 → 第一段「Scene 草稿」</b>，这个区域<b>已经存在</b>，当前显示「0 个有效草稿 / 暂无有效 Scene 草稿」。
+      已发布场景的「详情」弹窗里已有 <code>校验状态 validated</code> 和两个内容哈希。
+      <b>所以校验这件事在后端很可能已经在做</b>——「有效草稿」这个说法本身就意味着后端在区分有效与无效；
+      缺的是<b>草稿阶段没有把结论和原因呈现出来</b>。后端已有多少现成记录 <span class="fl fl-chk">待核实</span></div></div>
+    <div class="plan"><div class="k"><span class="dot"></span>③ 要完成什么</div><div class="v">
+      让提交人在这一页就能做完两件事之一：<b>拿草稿直接试跑</b>，或者<b>提交评审</b>。
+      为此在草稿区的表里加三列：<b>校验</b>（通过 / 警告 / 错误 / 进行中）、<b>责任人</b>、<b>动作</b>；展开时<b>按级别</b>列出条目，指到字段并给改法。
+      <b>规则：错误阻断试跑与提交评审；警告两者都不阻断，但提交评审时要带给评审人看。</b><span class="fl fl-pm">建议、待确认</span></div></div>
+  </div>
+  <div class="six" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+    <div class="gain"><div class="k"><span class="dot"></span>⑤ 为什么这样改</div><div class="v">
+      不改的代价：每次上传都要私下确认一遍；错两个字段要改两轮才发现；评审人收到跑不起来的资产。<br>
+      <b>为什么分两级而不是一刀切：</b>开发者调场景的过程本身就是「跑一次看看哪不对」，
+      把所有校验问题都挡在试跑前面，他会绕开平台在本地跑，平台拿不到记录；
+      但反过来，<b>把错误级也放行，等于让他白等一次注定失败的运行</b>，还占执行资源。
+      所以分级：<b>错误＝这次运行必然拿不到有效结果，先修；警告＝能跑出结果，只影响能不能进公共库。</b></div></div>
+    <div><div class="k"><span class="dot"></span>⑥ 本期与后续边界</div><div class="v">
+      <b>本期：</b>草稿区三列 + 失败展开 + 卡片上的「试跑」入口，全部在这个已有区域里做，不新增页面。<br>
+      <b>下一阶段：</b>跨资产的「我提交的 / 待我评审」汇总视图（第 12 章）。<br>
+      <b>本期刻意不做：</b>校验规则清单的可视化、批量重新校验。<br>
+      <b>本期不做通知推送</b>——正式站的通知 Provider 目前是 <code>not_configured</code>，没有底座。</div></div>
+  </div>
+
+  <div class="screen" data-nav="closed" data-en="Mementos • Sil • Closed Loop • Cases">
+    <div class="cap"><span class="nm">设计画面</span><span>场景库 · Scene 草稿区（在正式站现有区域上增列）</span>
+      <span class="st s-line">示例数据</span></div>
+    <div class="body">
+      <div class="crumb">MEMENTOS 仿真评测 / <span>闭环仿真用例</span></div>
+      <div class="ph"><h4>场景库</h4><span class="st s-mute">共 4 个已发布场景 · 1 个场景集</span>
+        <span class="btn pri" style="margin-left:auto">上传 Scene 草稿</span></div>
+
+      <h4 style="margin:22px 0 0">Scene 草稿 <span class="st s-warn">2 个待处理 · 1 个有错误</span>
+        <span class="fl fl-new" style="margin-left:6px">新增：校验（分三档）/ 责任人 / 动作三列</span></h4>
+      <div class="tw"><table style="min-width:1050px">
+        <thead><tr><th>草稿</th><th>用途</th><th>校验（通过 / 警告 / 错误）</th><th>责任人</th><th>更新时间</th><th>动作 · 两条路径</th></tr></thead>
+        <tbody>
+          <tr><td class="main">merge_slow_lead_sv<code>draft-9c41f0ab</code></td>
+            <td>汇入时前车低速<small>提交人 <code>user.a</code> · 规划场景组</small></td>
+            <td><span class="st s-err">错误 1</span> <span class="st s-warn">警告 1</span></td><td>user.a</td><td class="num">09-09 10:24</td>
+            <td><span class="btn off">用这个草稿试跑</span> <span class="btn off">提交评审</span>
+              <small><b>有错误，两条路都不放行</b>；把那 1 个错误修掉，试跑立刻可用（警告不影响）</small></td></tr>
+          <tr><td class="main">cutin_left_fast<code>draft-51b7c0d3</code></td>
+            <td>左侧快速切入<small>提交人 <code>user.a</code></small></td>
+            <td><span class="st s-warn">警告 2 · 无错误</span></td><td>user.a</td><td class="num">09-08 17:02</td>
+            <td><span class="btn pri">用这个草稿试跑</span> <span class="btn">提交评审</span>
+              <small><b>警告不拦</b>；提交评审时这 2 条会显示给评审人</small></td></tr>
+        </tbody>
+      </table></div>
+      <div class="hint" style="margin-top:8px"><b>三档在动作列的效果：</b>
+        <b>通过</b>＝两个按钮都亮；<b>警告</b>＝两个按钮都亮，但警告条目跟着提交给评审人；
+        <b>错误</b>＝两个按钮都灰，并直接写出「先修哪一项」。<span class="fl fl-pm">建议、待确认</span></div>
+      <div class="note n-info" style="margin-top:10px"><b>同一张卡片上并列两个动作，就是第 02 章那两条路径的入口。</b>
+        点「用这个草稿试跑」直接进创建运行向导（第 08 章），场景位已预填这个草稿，<b>不需要任何人审批</b>；
+        跑出来的 Run 在结果页会标「输入含未发布草稿」，带警告的再加一行警告摘要，正常存进历史记录，但不能设为基线。
+        点「提交评审」进入第 04 章。</div>
+
+      <div class="note n-err" style="margin-top:12px">
+        <b>draft-9c41f0ab · 校验明细分两级</b>（展开行内容，指到字段并给改法）
+        <div class="tw"><table style="min-width:700px">
+          <thead><tr><th style="width:13%">级别</th><th style="width:14%">字段</th><th style="width:22%">问题</th><th style="width:26%">为什么是这一级</th><th>怎么改</th></tr></thead>
+          <tbody>
+            <tr><td><span class="st s-err">错误<small>阻断试跑</small></span></td><td class="main">vehicleConfig</td>
+              <td>引用的载具配置版本不存在</td>
+              <td>取不到载具配置，仿真根本起不来，<b>这次运行必然没有任何有效结果</b></td>
+              <td>改为当前可用版本 <code>rt-vehicle-config-v001@20260818.132344+git40581b7-1</code></td></tr>
+            <tr><td><span class="st s-warn">警告<small>不阻断试跑</small></span></td><td class="main">metrics[1]</td>
+              <td>引用了 <code>lateral-clearance@0.9.0</code>，该计算器尚未发布</td>
+              <td>场景照样跑完，只是这<b>一个</b>指标算不出来 → 那一格记为「无法判定」（第 09 章），其他指标照常有结果</td>
+              <td>等它通过评审后再引用；或先只绑定 <code>collision@1.0.4</code></td></tr>
+          </tbody>
+        </table></div>
+        <div class="hint" style="margin-top:8px"><b>怎么划级别（建议口径）：</b>
+          <b>错误＝这次运行必然拿不到任何有效结果</b>（Schema 不合法、引用的对象不存在、必填字段缺失）；
+          <b>警告＝能跑出结果，但影响它能不能被别人复用、或某一格进不了门禁</b>（引用未发布资产、缺用途描述、命名不可读、指标没有判定标准）。
+          这套级别与第 07 章配置保存前检查的<b>错误 / 警告</b>是同一套语义。<span class="fl fl-pm">建议、待确认</span></div>
+      </div>
+
+      <h4 style="margin:26px 0 0">闭环仿真用例 <span class="st s-mute">共 4 个</span>
+        <span class="fl fl-now" style="margin-left:6px">正式站现状，本步不改</span></h4>
+      <div class="tw"><table style="min-width:810px">
+        <thead><tr><th>名称</th><th>用途</th><th>平台标签</th><th>状态</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr><td class="main">example</td><td>示例</td><td><span class="st s-line">sil</span></td><td><span class="st s-ok">已发布</span></td><td><span class="btn">详情</span></td></tr>
+          <tr><td class="main">left_lc_3ln_sv</td><td>三车道左变道</td><td><span class="st s-line">sil</span></td><td><span class="st s-ok">已发布</span></td><td><span class="btn">详情</span></td></tr>
+          <tr><td class="main">right_lc_3ln_sv</td><td>三车道右变道</td><td><span class="st s-line">sil</span></td><td><span class="st s-ok">已发布</span></td><td><span class="btn">详情</span></td></tr>
+          <tr><td class="main">staticfront</td><td>前方静止目标</td><td><span class="st s-line">sil</span></td><td><span class="st s-ok">已发布</span></td><td><span class="btn">详情</span></td></tr>
+        </tbody>
+      </table></div>
+
+      <h4 style="margin:26px 0 0">场景集 <span class="st s-mute">共 1 个场景集</span>
+        <span class="fl fl-now" style="margin-left:6px">正式站现状，本步不改</span></h4>
+      <div class="tw"><table>
+        <thead><tr><th>名称</th><th>场景数量</th></tr></thead>
+        <tbody>
+          <tr><td class="main">Basic</td><td>4<small>被 6 个 Evaluation Profile 引用</small></td></tr>
+        </tbody>
+      </table></div>
+      <div class="hint" style="margin-top:10px">上面「闭环仿真用例」和「场景集」两个区域原样保留，是为了看清本次是在<b>同一个已有页面</b>里增量修改：
+        本步新增的只有草稿区的三列和错误／警告明细展开，已发布场景表和场景集表这一步没动。
+        场景集的版本与影响提示在第 06 章改，改的就是这一页下方的这个区域。</div>
+    </div>
+  </div>
+
+  <div class="chg">
+    <div><div class="t">② 现状</div><div class="c"><b>草稿区已存在</b>草稿区、已发布表、场景集三段都在；已发布场景详情里有 <code>validated</code> 与两个内容哈希，草稿区标题写的是「有效草稿」。</div></div>
+    <div><div class="t">③ 本次改动</div><div class="c"><b>只在草稿区增列</b>校验 / 责任人 / 动作三列，展开按<b>错误 / 警告</b>两级列出；动作列并列「试跑」与「提交评审」，<b>错误拦两者，警告只带给评审人</b>。</div></div>
+    <div><div class="t">⑤ 为什么这样改</div><div class="c"><b>一次改完</b>不必私下确认上传结果，一次看到全部不合格字段；调试循环不被评审拖住；评审人不会收到跑不起来的资产。</div></div>
+    <div><div class="t">本期与后续边界</div><div class="c"><b>本期做完这一屏</b>不新增页面。<br>
+      <b>后续：</b>校验规则清单可视化、批量重新校验、跨资产待办汇总（第 12 章）。<br>
+      <b>待确认：</b>「Scene 必须绑定 Metric」的边界——建议纯回放场景允许不绑定；这类场景没有数值，所以不进指标比较
+      （与「有数值、没有判定标准」不同，后者可比，见第 05 章）
+      <span class="fl fl-pm">建议、待确认</span>；校验规则由谁维护 <span class="fl fl-dev">工作量待研发估算</span></div></div>
+  </div>
+
+  <div class="note n-warn"><b>这一步不引入新页面。</b>本章所有改动都在场景库这一页的第一段里。
+    跨模块的待办汇总（「待我评审 / 我提交的有错误 / 被打回」以及治理类的「已发布未采用」等）放在第 12 章，属于<b>下一阶段</b>，
+    而且形态还没定——它可以是一个新入口，也可以就是各资产页面上的一个「待我处理」筛选。<b>本期不依赖它。</b>
+    <span class="fl fl-p1">下一阶段</span> <span class="fl fl-pm">形态待确认</span></div>
+</section>
+
+<!-- ================= 04 谁审 ================= -->
+<section class="sec" id="s2">
+  <div class="eyebrow">04 · STEP 2 · 谁审、按什么标准审 <span class="fl fl-p0">本期</span>（仅路径 B）</div>
+  <h2>三类资产的风险不一样，<br>不能套同一条审批流。</h2>
+
+  <div class="path"><span class="lb">位置</span>
+    <span>场景 → 导航 <b>闭环仿真用例</b> · 区域 <b>Scene 草稿</b></span><span class="sep">｜</span>
+    <span>计算器与判定标准 → 导航 <b>指标注册表</b> · 两张表各自新增<b>待评审</b>区</span>
+    <span class="lb" style="margin-left:auto">加页内区域</span>
+  </div>
+
+  <div class="six">
+    <div class="prob"><div class="k"><span class="dot"></span>① 谁在使用</div><div class="v">
+      <b>评审人 <code>user.b</code></b>，被临时叫来「帮我看下这个场景」。他不知道看什么算看完，也不知道自己有没有权限发布。
+      另一头是<b>提交人 <code>user.a</code></b>，被打回后只收到一句「不太对」，改完再传，又被打回另一个问题。<br>
+      <b>注意这一章只服务路径 B。</b>只想自己验证的人不来这一步——试跑不需要评审（第 02、03 章）。</div></div>
+    <div class="now"><div class="k"><span class="dot"></span>② 在正式站哪个位置</div><div class="v">
+      场景在<b>场景库 → Scene 草稿</b>；计算器与判定标准在<b>指标注册表</b>的两张表里，各加一个「待评审」区。
+      正式站现在<b>没有评审动作</b>：场景只有已发布状态，注册表只有生命周期列。
+      但有两处现成范式可以沿用：<b>自动触发 → 治理</b>标签已做到「操作必须写原因」+ 页面上写明需要什么角色；
+      <b>评测用例执行器</b>表已有「负责人 / 生命周期 / 健康状态」三列。</div></div>
+    <div class="plan"><div class="k"><span class="dot"></span>③ 要完成什么</div><div class="v">
+      让评审人在自己的页面上完成一次有据可依的批准或打回。为此需要：三张<b>不同的检查清单</b>（第 02 章已按资产类型分开）；
+      打回必须写理由并指向字段；发布只锁定被批准的<b>那一个修订</b>——评审期间重新上传，原批准自动失效；
+      权限不足的按钮<b>禁用并写清缺什么权限找谁</b>，不隐藏。</div></div>
+  </div>
+
+  <h3 class="blk">评审不是「加几列」：需要什么，逐项列出来</h3>
+  <p class="hint">上一版把这件事写得太轻了。评审要落地，至少需要下面四类东西，其中<b>三类在后端</b>。
+    每一项的<b>工作量由研发确认</b>，本方案只负责把需要的东西说全、把规则定清。</p>
+  <div class="tw"><table class="rules">
+    <thead><tr><th style="width:13%">需要什么</th><th style="width:31%">具体要哪些</th><th style="width:26%">正式站现在有什么可复用</th><th>依赖与工作量</th></tr></thead>
+    <tbody>
+      <tr><td class="main">① 状态</td>
+        <td>草稿资产要能停在<b>待评审</b>，并能回到<b>已打回</b>。也就是至少四个取值：草稿 / 待评审 / 已打回 / 已发布。
+          状态迁移要有约束（校验未通过不能进「待评审」；已发布不能回退到草稿，只能发新修订）。</td>
+        <td>已发布状态有；指标注册表有「生命周期：启用」。<b>中间态没有。</b></td>
+        <td><span class="fl fl-dev">工作量待研发估算</span>需要新增状态字段与迁移约束，不只是前端展示。</td></tr>
+      <tr><td class="main">② 权限</td>
+        <td>要区分两件事：<b>㈠ 角色允许做哪类动作</b>（谁可以点「批准」这个按钮）；<b>㈡ 用户能对哪个资产做</b>（能批准的是不是这一个资产）。
+          还要能表达「不能自审」——提交人不能批准自己提交的修订。</td>
+        <td>平台有 RBAC；自动触发治理页已经在界面上写明「平台管理员或 Mementos Automation Admin」，是可照搬的写法。
+          <b>资产上是否已有归属字段参与判断，界面看不出来</b> <span class="fl fl-chk">待核实</span></td>
+        <td><span class="fl fl-dev">工作量待研发估算</span>㈡ 需要资产上有归属信息（责任人 / 所属组）并接进权限判断。这是最不确定的一项。</td></tr>
+      <tr><td class="main">③ 操作记录</td>
+        <td>每一次提交 / 批准 / 打回要记：谁、什么时候、针对哪个内容哈希、理由是什么。<b>打回理由必填。</b>
+          记录要能在资产详情里看到，不只是进审计。</td>
+        <td>审计日志入口在（本账号 <code>Insufficient permissions</code>，看不到内容 <span class="fl fl-chk">待核实</span>）；
+          自动触发治理页已有「操作原因」必填输入框，交互可照搬。</td>
+        <td><span class="fl fl-dev">工作量待研发估算</span>需要一张操作记录，以及在资产详情里读它的接口。</td></tr>
+      <tr><td class="main">④ 谁能处理</td>
+        <td>每类资产要有明确的处理人来源：场景 → 场景库维护人；计算器 → 指标口径归口人 + 业务方；判定标准 → 归口人 + 受影响流程负责人（见第 02 章）。
+          <b>还要能回答「现在轮到谁了」。</b></td>
+        <td>执行器表已有「负责人 platform」这一列的范式。<b>场景表和注册表都还没有责任人列。</b></td>
+        <td><span class="fl fl-pm">建议、待确认</span>处理人是配成角色成员，还是每个资产单独指定？<b>建议先用角色</b>——资产只有几个的时候逐个指定人更容易漏。</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note n-warn"><b>还有一项没有底座的依赖：</b>「有东西待你评审」怎么告诉评审人。
+    正式站「自动触发 → 治理」页面写着通知 Provider 状态 <code>not_configured</code>，<b>站外通知这一步现在做不了</b>。
+    本期的做法是：待办在<b>各资产页面内可见</b>（一个「待我处理」筛选 + 一个可分享的链接）。
+    <b>这不能替代提醒</b>，只是让被叫到的人打开链接就能直接干活。通知接入排在下一阶段。<span class="fl fl-p1">下一阶段</span></div>
+
+  <div class="tw"><table>
+    <thead><tr><th style="width:14%">资产</th><th style="width:30%">评审人要确认的（清单）</th><th style="width:26%">不属于评审范围</th><th>谁能发布</th></tr></thead>
+    <tbody>
+      <tr><td class="main">Scene<br><span class="st s-line">场景库</span></td>
+        <td>① 校验通过 ② 场景语义与用途描述一致 ③ 和已有 4 个场景不重复 ④ 载具配置与地图版本可用 ⑤ 绑定的指标是这个场景真正要看的</td>
+        <td><b>跑出红灯不算问题。</b>如果这个场景就是为了复现一次碰撞，那么碰撞计数 1、判定未通过，场景评审照样应该通过。</td>
+        <td>场景库维护人（含提交人以外的第二人）</td></tr>
+      <tr><td class="main">Calculator<br><span class="st s-line">指标注册表</span></td>
+        <td>① 软件包能拉起并在样例场景上跑出结果 ② 输出字段名、单位、类型与声明一致 ③ 指标口径说明可读 ④ 缺数据时返回「无结果」而不是 0 ⑤ 适用范围（哪类场景可用）</td>
+        <td><b>不做代码评审。</b>机器验产物，负责人交口径说明和一次验证运行的证据，评审人只确认口径和适用范围。
+          <span class="fl fl-pm">此项为建议，待产品决策</span></td>
+        <td>指标注册表维护人</td></tr>
+      <tr><td class="main">Criterion<br><span class="st s-line">指标注册表</span></td>
+        <td>① 引用的计算器已发布 ② 字段存在且单位一致 ③ 判定方向与阈值合理 ④ 失败严重度定得对 ⑤ 缺失策略定得对 ⑥ <b>影响面</b>：启用后会影响哪些配置和场景</td>
+        <td>不评审阈值取值的业务合理性以外的内容；但<b>失败严重度为「失败」的判定标准需要独立评审人确认</b>，不能自审。
+          <span class="fl fl-pm">待产品决策</span></td>
+        <td>指标注册表维护人 + 受影响配置的负责人知会</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="screen" data-nav="metric" data-en="Mementos • Metric Registry">
+    <div class="cap"><span class="nm">设计画面</span><span>指标注册表 · 新增「待评审」区与评审面板</span><span class="st s-line">示例数据</span></div>
+    <div class="body">
+      <div class="crumb">MEMENTOS 仿真评测 / <span>指标注册表</span></div>
+      <div class="ph"><h4>指标计算器与判定标准注册表</h4>
+        <span class="sub">指标计算器与判定标准的不可变版本。计算器由 mona metrics 构建后上传，注册表不负责构建。</span></div>
+
+      <h4 style="margin:18px 0 0">指标计算器 · 待评审 <span class="st s-warn">1 个</span>
+        <span class="fl fl-new" style="margin-left:6px">新增区域</span></h4>
+      <div class="tw"><table style="min-width:1080px">
+        <thead><tr><th>精确标识</th><th>软件包</th><th>计算出的指标</th><th>校验证据</th>
+          <th>适用范围</th><th>责任人</th><th>状态</th></tr></thead>
+        <tbody>
+          <tr><td class="main">lateral-clearance@0.9.0</td>
+            <td><code>rt-metric-calculator-lateral-clearance@0.9.0-1</code></td>
+            <td>min_clearance (m)<small>clearance_p05 (m) · clearance_frames (count)</small></td>
+            <td><span class="st s-err">错误 2</span>
+              <small>试跑 1 次 · <a href="#" style="color:var(--brand-d)">查看产物</a></small></td>
+            <td>横向场景<small>不适用于无目标车</small></td>
+            <td>user.a</td>
+            <td><span class="st s-err">已打回</span><small>user.b</small></td></tr>
+        </tbody>
+      </table></div>
+      <div class="note n-err" style="margin-top:12px"><b>打回理由（必填，指向字段）</b><br>
+        评审人 <code>user.b</code> · 09-09 11:40 —— <code>min_clearance</code> 在无有效检测帧时返回 <b>0</b>。
+        0 米会被 <code>clearance-min</code> 读成「贴到了」，产生一次假失败。请改为返回「无结果」，让判定落到「无法判定」。<br>
+        <span class="mute">要求的修法：无有效输入时不写该字段，并在 <code>clearance_frames</code> 里给出 0 帧的事实。</span></div>
+
+      <h4 style="margin:26px 0 0">指标计算器 · 已发布 <span class="st s-mute">共 2 个</span>
+        <span class="fl fl-now" style="margin-left:6px">正式站已有此表与生命周期列</span>
+        <span class="fl fl-new" style="margin-left:4px">新增责任人 / 被引用</span></h4>
+      <div class="tw"><table style="min-width:945px">
+        <thead><tr><th>精确标识</th><th>生命周期</th><th>软件包</th><th>计算出的指标</th><th>责任人</th><th>被引用</th></tr></thead>
+        <tbody>
+          <tr><td class="main">collision@1.0.4</td><td><span class="st s-ok">启用</span></td>
+            <td><code>rt-metric-calculator-collision@1.0.4-1</code></td>
+            <td>collision_count (count)<small>collision_severity · collision_episodes</small></td>
+            <td>platform</td><td>4 个场景 · 2 个配置</td></tr>
+          <tr><td class="main">lateral-clearance@1.0.0<span class="st s-info" style="margin-left:6px">新</span></td>
+            <td><span class="st s-ok">启用</span></td>
+            <td><code>rt-metric-calculator-lateral-clearance@1.0.0-1</code></td>
+            <td>min_clearance (m)<small>clearance_p05 (m) · clearance_frames (count)</small></td>
+            <td>user.a</td><td><span class="st s-warn">1 个场景 · 0 个配置</span></td></tr>
+        </tbody>
+      </table></div>
+
+      <h4 style="margin:26px 0 0">判定标准 <span class="st s-mute">共 2 个</span>
+        <span class="fl fl-now" style="margin-left:6px">正式站已有全部这些列</span></h4>
+      <div class="tw"><table style="min-width:1080px">
+        <thead><tr><th>精确标识</th><th>指标计算器</th><th>字段</th><th>判定条件</th><th>失败严重度</th><th>缺失策略</th><th>影响面</th></tr></thead>
+        <tbody>
+          <tr><td class="main">collision-free@1</td><td><code>collision@1.0.4</code></td><td>collision_count</td>
+            <td><code>EQ 0</code></td><td><span class="st s-err">失败</span></td><td>缺失时失败</td><td>4 场景 · 2 配置</td></tr>
+          <tr><td class="main">clearance-min@1<span class="st s-info" style="margin-left:6px">新</span></td>
+            <td><code>lateral-clearance@1.0.0</code></td><td>min_clearance</td>
+            <td><code>GTE 0.5</code> m</td><td><span class="st s-err">失败</span></td>
+            <td><span class="st s-warn">缺失时无法判定</span><small>新增取值，见第 09 章</small></td>
+            <td><span class="st s-warn">1 场景 · 0 配置</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="chg">
+    <div><div class="t">② 现状</div><div class="c"><b>字段都在，动作没有</b>注册表已有精确标识、生命周期、软件包、输出字段、判定条件、失败严重度、缺失策略。没有草稿、没有评审、没有责任人。</div></div>
+    <div><div class="t">③ 本次改动</div><div class="c"><b>加待评审区 + 三张清单</b>打回必须写理由并指字段；失败严重度为「失败」的判定标准不可自审；重新上传使原批准失效。
+      <b>试跑不经过这里。</b></div></div>
+    <div><div class="t">⑤ 为什么这样改</div><div class="c"><b>少一轮来回</b>评审人知道看什么算看完；提交人一次拿到全部问题；缺数据补 0 这类问题在评审阶段就被挡住。</div></div>
+    <div><div class="t">本期与后续边界</div><div class="c"><b>本期：</b>状态 + 权限 + 操作记录 + 处理人四项依赖（见上表），工作量待研发确认。<br>
+      <b>后续：</b>评审模板、抽样复审、到期复核、通知推送。<br>
+      <b>待确认：</b>① 能不能自审（<b>建议：失败严重度为「失败」的判定标准和计算器不可自审，场景可以由同组另一人审</b>）
+      <span class="fl fl-pm">建议、待确认</span>
+      ② 计算器不做代码评审、只审口径与适用范围 <span class="fl fl-pm">建议、待确认</span></div></div>
+  </div>
+</section>
+
+<!-- ================= 05 发布与采用 ================= -->
+<section class="sec" id="s3">
+  <div class="eyebrow">05 · STEP 3 · 发布之后放在哪 <span class="fl fl-p0">本期</span></div>
+  <h2>已发布 ≠ 有人在跑。<br>这两件事今天在平台上分不出来。</h2>
+
+  <div class="path"><span class="lb">位置</span>
+    <span>导航 <b>闭环仿真用例</b> · 区域 <b>闭环仿真用例</b>表（已发布场景）</span><span class="sep">＋</span>
+    <span>场景「详情」<b>弹窗</b>（正式站已是弹窗，不是独立页面）</span>
+    <span class="lb" style="margin-left:auto">改现有区域与弹窗</span>
+  </div>
+
+  <div class="six">
+    <div class="prob"><div class="k"><span class="dot"></span>① 谁在使用</div><div class="v">
+      场景发布了，提交人以为「上线了」。两周后才发现这个场景一次都没跑过——因为它没进任何场景集，
+      而所有评测配置引用的是场景集。这件事今天在平台上完全看不出来。</div></div>
+    <div class="now"><div class="k"><span class="dot"></span>② 在正式站哪个位置</div><div class="v">
+      已发布表有名称、用途、平台标签、状态（已发布）、操作（详情）。详情弹窗有名称、状态、用途、车辆配置、
+      校验状态、Case 内容哈希、Schema 内容哈希。<b>没有责任人、没有绑定的指标、没有修订历史、没有「谁引用了我」。</b>
+      另外：Run 详情页里场景名的链接只回到这个列表页，<b>点不到单个场景</b>。</div></div>
+    <div class="plan"><div class="k"><span class="dot"></span>③ 要完成什么</div><div class="v">
+      已发布表增加<b>采用</b>列：已被 N 个场景集 / M 个配置引用，为 0 时明确标「已发布 · 未采用」。
+      详情弹窗补四块：责任人、绑定的指标与判定标准、修订历史（每次修订的内容哈希与批准人）、反向引用。
+      并让 Run 详情里的场景名<b>能直接点到这个弹窗</b>（现在只回列表页）。</div></div>
+  </div>
+
+  <div class="screen" data-nav="closed" data-en="Mementos • Sil • Closed Loop • Cases">
+    <div class="cap"><span class="nm">设计画面</span><span>场景库 · 已发布场景表增列 ＋ 场景详情弹窗（正式站已是弹窗，沿用）</span><span class="st s-line">示例数据</span></div>
+    <div class="body">
+      <div class="crumb">MEMENTOS 仿真评测 / <span>闭环仿真用例</span></div>
+      <div class="ph"><h4>场景库</h4><span class="st s-mute">共 5 个已发布场景 · 1 个场景集</span></div>
+
+      <h4 style="margin:20px 0 0">闭环仿真用例 <span class="st s-mute">共 5 个</span>
+        <span class="fl fl-now" style="margin-left:6px">正式站现有表</span>
+        <span class="fl fl-new" style="margin-left:4px">新增：采用 / 责任人两列</span></h4>
+      <div class="tw"><table style="min-width:1080px">
+        <thead><tr><th>名称</th><th>用途</th><th>平台标签</th><th>状态</th><th>采用</th><th>责任人</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr style="background:var(--brand-bg)"><td class="main">merge_slow_lead_sv
+              <small>当前打开的这一行</small></td>
+            <td>汇入时前车低速</td><td><span class="st s-line">sil</span></td>
+            <td><span class="st s-ok">已发布</span></td>
+            <td><span class="st s-warn">已发布 · 未采用</span><small>0 个场景集 · 0 个配置</small></td>
+            <td>user.a</td><td><span class="btn pri">详情</span></td></tr>
+          <tr><td class="main">example</td><td>示例</td><td><span class="st s-line">sil</span></td>
+            <td><span class="st s-ok">已发布</span></td>
+            <td>1 个场景集 · 6 个配置</td><td><span class="st s-mute">未设置</span></td>
+            <td><span class="btn">详情</span></td></tr>
+          <tr><td class="main">left_lc_3ln_sv</td><td>三车道左变道</td><td><span class="st s-line">sil</span></td>
+            <td><span class="st s-ok">已发布</span></td>
+            <td>1 个场景集 · 6 个配置</td><td>platform</td><td><span class="btn">详情</span></td></tr>
+          <tr><td class="main">right_lc_3ln_sv</td><td>三车道右变道</td><td><span class="st s-line">sil</span></td>
+            <td><span class="st s-ok">已发布</span></td>
+            <td>1 个场景集 · 6 个配置</td><td>platform</td><td><span class="btn">详情</span></td></tr>
+          <tr><td class="main">staticfront</td><td>前方静止目标</td><td><span class="st s-line">sil</span></td>
+            <td><span class="st s-ok">已发布</span></td>
+            <td>1 个场景集 · 6 个配置</td><td>platform</td><td><span class="btn">详情</span></td></tr>
+        </tbody>
+      </table></div>
+      <div class="hint" style="margin-top:8px">「采用」列就是本章要解决的问题：<code>merge_slow_lead_sv</code> 状态是<b>已发布</b>，
+        但采用是 <b>0 / 0</b>，也就是<b>一次都不会被跑到</b>。今天这一列不存在，所以这件事在平台上看不出来。</div>
+
+      <div class="mask"><div class="modal">
+        <div class="mh"><span class="st s-line">弹窗</span><b>merge_slow_lead_sv</b>
+          <span class="st s-ok">已发布</span><span class="st s-warn">未采用 · 0 个场景集</span>
+          <span class="x">✕</span></div>
+        <div class="mb">
+      <div class="two" style="margin-top:0">
+        <div>
+          <h4 style="margin:0 0 6px">基本信息 <span class="fl fl-now">正式站弹窗已有</span></h4>
+          <div class="tw"><table class="rules" style="min-width:420px"><tbody>
+            <tr><td>状态</td><td><span class="st s-ok">已发布</span></td></tr>
+            <tr><td>用途</td><td>汇入时前车低速，验证横向间距保持</td></tr>
+            <tr><td>车辆配置</td><td><code>rt-vehicle-config-v001@20260818.132344+git40581b7-1</code></td></tr>
+            <tr><td>校验状态</td><td><code>validated</code></td></tr>
+            <tr><td>Case 内容哈希</td><td><code>c4a10f8b93d2…</code></td></tr>
+            <tr><td>Schema 内容哈希</td><td><code>1f7be05c2a44…</code></td></tr>
+          </tbody></table></div>
+
+          <h4 style="margin:22px 0 6px">绑定的指标与判定标准 <span class="fl fl-new">新增</span></h4>
+          <div class="tw"><table style="min-width:460px">
+            <thead><tr><th>指标计算器</th><th>字段</th><th>判定标准</th><th>作用</th></tr></thead>
+            <tbody>
+              <tr><td class="main">collision@1.0.4</td><td>collision_count</td><td><code>collision-free@1</code></td>
+                <td><span class="st s-err">门禁 · 失败即未通过</span></td></tr>
+              <tr><td class="main">lateral-clearance@1.0.0</td><td>min_clearance</td><td><code>clearance-min@1</code></td>
+                <td><span class="st s-err">门禁 · 失败即未通过</span></td></tr>
+              <tr><td class="main">lateral-clearance@1.0.0</td><td>clearance_p05</td>
+                <td><span class="st s-mute">无</span></td>
+                <td><span class="st s-warn">观测项 · 有数值可比 · 不出结论</span></td></tr>
+            </tbody>
+          </table></div>
+          <div class="note n-warn" style="margin-top:10px"><b>这里要分清两种「没有指标」，后果完全不同：</b>
+            <div class="tw"><table class="rules" style="margin-top:8px">
+              <thead><tr><th style="width:19%">情况</th><th style="width:11%">有数值吗</th><th style="width:26%">能进数值比较 / 趋势吗</th><th style="width:14%">能出通过 / 失败吗</th><th>界面怎么标</th></tr></thead>
+              <tbody>
+                <tr><td><b>无指标</b><small>场景没有绑定任何计算器</small></td>
+                  <td><span class="st s-err">没有</span></td>
+                  <td><b>不能</b>——没有数，就没有可比的东西</td>
+                  <td><span class="st s-err">不能</span></td>
+                  <td>场景标<b>「仅回放，无指标」</b>；不进任何门禁分母，也不进指标比较</td></tr>
+                <tr><td><b>有计算值、无判定标准</b><small>有计算器，没有 Criterion</small></td>
+                  <td><span class="st s-ok">有</span></td>
+                  <td><b>可以</b>——只要<b>单位、计算口径（计算器版本）、关键输入</b>都可比，就按第 09 章的有效条件正常进比较和趋势</td>
+                  <td><span class="st s-err">不能</span><small>没有阈值，无从判定</small></td>
+                  <td>指标标<b>「观测项」</b>：数值照常显示、照常比较，<b>不进门禁分母、不产生门禁结论</b></td></tr>
+              </tbody>
+            </table></div>
+            <div class="hint" style="margin-top:8px">上一版把这两种都写成「仅观测」，结果是<b>有数值的那一种也被排除在比较之外</b>，等于白算一遍。
+              <b>建议：能算出来的数值一律允许比较，只是不允许生成结论、不参与门禁。</b><span class="fl fl-pm">建议、待确认</span></div></div>
+
+          <h4 style="margin:22px 0 6px">修订历史 <span class="fl fl-new">新增</span></h4>
+          <div class="tw"><table style="min-width:520px">
+            <thead><tr><th>修订</th><th>内容哈希</th><th>变更</th><th>批准人</th><th>时间</th></tr></thead>
+            <tbody>
+              <tr><td class="main">r2 <span class="st s-ok">当前</span></td><td><code>c4a10f8b93d2</code></td>
+                <td>增加 <code>lateral-clearance@1.0.0</code> 绑定</td><td>user.b</td><td class="num">09-09 14:12</td></tr>
+              <tr><td class="main">r1</td><td><code>8ef2ac71b05e</code></td>
+                <td>首次发布（仅绑定 <code>collision@1.0.4</code>）</td><td>user.b</td><td class="num">09-09 12:30</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div class="aside">
+          <h4>反向引用 <span class="fl fl-new">新增</span></h4>
+          <dl>
+            <dt>场景集</dt><dd><span class="st s-warn">0 个</span> —— 不进场景集，任何配置都不会跑到它</dd>
+            <dt>评测配置</dt><dd><span class="st s-warn">0 个</span></dd>
+            <dt>最近被跑到</dt><dd>从未</dd>
+            <dt>责任人</dt><dd><code>user.a</code>（规划场景组）</dd>
+            <dt>备用责任人</dt><dd><span class="st s-mute">未设置</span></dd>
+          </dl>
+          <div class="note n-info" style="margin-top:14px"><b>下一步动作就在这里：</b>点弹窗底部的「加入场景集」，进入第 06 章。
+            这一个按钮就是本章要解决的问题——今天用户不知道自己还缺这一步。</div>
+          <p class="mute" style="font-size:12.5px;margin:12px 0 0">「谁引用了我」的反向查询能否由后端提供，需要研发确认；
+            如果拿不到，第一阶段可以退化成「是否属于任一场景集」这个是非值。<span class="fl fl-dev">待研发确认</span></p>
+        </div>
+      </div>
+        </div>
+        <div class="mf"><span class="btn pri">加入场景集</span><span class="btn">导出</span>
+          <span class="btn off">废弃此场景</span>
+          <small class="mute">你不是此场景责任人，废弃需要场景库维护人权限 · 找 platform 组申请</small>
+          <span class="fl fl-new" style="margin-left:auto">新增：弹窗底部操作区</span></div>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="chg">
+    <div><div class="t">② 现状</div><div class="c"><b>弹窗只有 6 个字段</b>已发布状态、用途、车辆配置、校验状态、两个内容哈希。没有责任人、绑定指标、修订史、引用关系。</div></div>
+    <div><div class="t">③ 本次改动</div><div class="c"><b>补四块 + 一列</b>绑定指标、修订历史、反向引用、责任人；列表加「采用」列；Run 详情里的场景名可点到这里。</div></div>
+    <div><div class="t">⑤ 为什么这样改</div><div class="c"><b>发布不再等于结束</b>能看到自己的场景有没有被真跑到；出问题时能直接找到人；半年后能查出当时用的是哪个修订。</div></div>
+    <div><div class="t">⑥ 本期与后续边界</div><div class="c"><b>两项</b>① 无判定标准的指标：建议放行为观测项，<b>数值可比、不出结论</b>（与「场景完全无指标」不同）<span class="fl fl-pm">建议、待确认</span>
+      ② 反向引用查询是否可实现 <span class="fl fl-dev">待研发确认</span></div></div>
+  </div>
+</section>
+
+<!-- ================= 06 场景集 ================= -->
+<section class="sec" id="s4">
+  <div class="eyebrow">06 · STEP 4 · 加入场景集 <span class="fl fl-p0">本期只做衔接</span> <span class="fl fl-p1">版本与影响分析下一阶段</span></div>
+  <h2><code>Basic</code> 从 4 个变成 5 个，<br>那 6 个引用它的配置会怎样。</h2>
+
+  <div class="path"><span class="lb">位置</span>
+    <span>导航 <b>闭环仿真用例</b></span><span class="sep">→</span>
+    <span>页面 <b>场景库</b></span><span class="sep">→</span>
+    <span class="cur">区域 <b>场景集</b>（页面第三段，正式站已有 <code>Basic</code>）</span>
+    <span class="lb" style="margin-left:auto">改现有区域</span>
+  </div>
+
+  <div class="six">
+    <div class="prob"><div class="k"><span class="dot"></span>① 谁在使用</div><div class="v">
+      提交人把场景加进 <code>Basic</code>。<code>Basic</code> 被 6 个评测配置引用。那么这 6 个配置的回归范围<b>立刻从 4 个变成 5 个</b>，
+      而这 6 个配置的负责人不知道。反过来，某次运行结果变差时，也说不清「是代码变了还是回归范围变了」。</div></div>
+    <div class="now"><div class="k"><span class="dot"></span>② 在正式站哪个位置</div><div class="v">
+      场景集区域已存在，<code>Basic</code> 已显示<b>4 个场景</b>和<b>被 6 个 Evaluation Profile 引用</b>——
+      也就是说反向引用计数在场景集这一层<b>已经有了</b>。缺的是：场景集<b>没有版本</b>，
+      成员增删<b>没有记录</b>，配置引用的是「<code>Basic</code> 这个名字」而不是「<code>Basic</code> 的某一版」。</div></div>
+    <div class="plan"><div class="k"><span class="dot"></span>③ 要完成什么</div><div class="v">
+      给场景集<b>加版本</b>：成员集合每次变化生成新版本（v1 → v2），带成员修订清单和内容哈希。
+      配置引用时可选<b>钉住某一版</b>或<b>跟随最新</b>；跟随最新的配置在成员变化后<b>提示范围变化</b>，
+      并在下一次 Run 的冻结摘要里写明「场景集 <code>Basic</code> v2 · 5 个成员（本次新增 1 个）」。</div></div>
+  </div>
+
+  <div class="note n-warn"><b>本期与下一阶段在这一章的切分：</b><br>
+    <b>本期只做衔接</b>——新发布的场景能被加进场景集，加完之后<b>在场景集上显示成员数变化和一句「6 个配置的范围已从 4 个变为 5 个」</b>。
+    这一句需要的数据正式站已经有了（<code>Basic</code> 现在就显示「被 6 个 Evaluation Profile 引用」）。<br>
+    <b>下一阶段做场景集版本</b>（v1 → v2、成员修订清单、钉住某一版 / 跟随最新）。理由：这需要新的版本对象和引用方式，
+    而<b>本期先靠「显示范围变化」就能让人知道发生了什么</b>，成本差很多。<br>
+    <b>更后面做影响分析</b>（改一个成员，逐个列出 6 个配置各自的差异）。<span class="fl fl-p2">更后面</span></div>
+
+  <div class="screen" data-nav="closed" data-en="Mementos • Sil • Closed Loop • Cases">
+    <div class="cap"><span class="nm">设计画面</span><span>场景库 · 场景集区域（在现有区域上加版本与影响提示）</span><span class="st s-line">示例数据</span></div>
+    <div class="body">
+      <div class="crumb">MEMENTOS 仿真评测 / <span>闭环仿真用例</span></div>
+      <div class="ph"><h4>场景库</h4><span class="st s-mute">共 5 个已发布场景 · 1 个场景集</span></div>
+      <div class="hint" style="margin:14px 0 0">下面是<b>同一页面的第三段</b>。前两段（Scene 草稿、闭环仿真用例）在第 03、05 章，
+        这里只画本章要改的场景集区域。</div>
+
+      <h4 style="margin:20px 0 0">场景集 <span class="st s-mute">共 1 个</span>
+        <span class="fl fl-now" style="margin-left:6px">区域与引用计数正式站已有</span>
+        <span class="fl fl-new" style="margin-left:4px">新增版本与成员修订</span></h4>
+      <div class="tw"><table style="min-width:945px">
+        <thead><tr><th>场景集</th><th>版本</th><th>成员</th><th>被引用</th><th>更新</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr><td class="main">Basic<small>基础回归集</small></td>
+            <td><span class="st s-ok">v2 · 当前</span><small>内容哈希 <code>a71c0d4e8f36</code></small></td>
+            <td class="num">5 个<small>较 v1 新增 1 个</small></td>
+            <td>6 个评测配置<small>4 个跟随最新 · 2 个钉住 v1</small></td>
+            <td class="num">09-09 14:40<small>user.a</small></td>
+            <td><span class="btn">成员</span> <span class="btn">版本历史</span></td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="note n-warn" style="margin-top:14px"><b>保存前的影响提示（新增）</b><br>
+        把 <code>merge_slow_lead_sv</code> 加入 <code>Basic</code> 会生成 <b>v2</b>。受影响的配置：
+        <div class="tw"><table style="min-width:520px">
+          <thead><tr><th>评测配置</th><th>引用方式</th><th>回归范围</th><th>影响</th></tr></thead>
+          <tbody>
+            <tr><td class="main">Develop / Latest v3</td><td><span class="st s-info">跟随最新</span></td><td>4 → 5</td>
+              <td>下一次运行起自动包含新场景</td></tr>
+            <tr><td class="main">PnC PR Regression v3</td><td><span class="st s-info">跟随最新</span></td><td>4 → 5</td>
+              <td>下一次运行起自动包含新场景</td></tr>
+            <tr><td class="main">其余 2 个跟随最新的配置</td><td><span class="st s-info">跟随最新</span></td><td>4 → 5</td><td>同上</td></tr>
+            <tr><td class="main">其余 2 个钉住 v1 的配置</td><td><span class="st s-line">钉住 v1</span></td><td>4 → 4</td>
+              <td><span class="st s-mute">不变</span>，需负责人主动升级</td></tr>
+          </tbody>
+        </table></div>
+        <span class="mute">「跟随最新」是否应该是默认，需要产品决策：默认跟随让新场景更快生效，默认钉住让基线更稳。
+          本方案倾向<b>门禁类配置默认钉住，日常回归默认跟随</b>。</span><span class="fl fl-pm">待产品决策</span>
+      </div>
+
+      <h4 style="margin:24px 0 0">成员（v2） <span class="fl fl-new">新增：显示成员的精确修订</span></h4>
+      <div class="tw"><table style="min-width:810px">
+        <thead><tr><th>场景</th><th>修订</th><th>加入时间</th><th>加入人</th><th>状态</th></tr></thead>
+        <tbody>
+          <tr><td class="main">example</td><td><code>r1</code></td><td class="num">初始</td><td>platform</td><td><span class="st s-ok">已发布</span></td></tr>
+          <tr><td class="main">left_lc_3ln_sv</td><td><code>r1</code></td><td class="num">初始</td><td>platform</td><td><span class="st s-ok">已发布</span></td></tr>
+          <tr><td class="main">right_lc_3ln_sv</td><td><code>r1</code></td><td class="num">初始</td><td>platform</td><td><span class="st s-ok">已发布</span></td></tr>
+          <tr><td class="main">staticfront</td><td><code>r1</code></td><td class="num">初始</td><td>platform</td><td><span class="st s-ok">已发布</span></td></tr>
+          <tr><td class="main">merge_slow_lead_sv<span class="st s-info" style="margin-left:6px">v2 新增</span></td>
+            <td><code>r2</code></td><td class="num">09-09 14:40</td><td>user.a</td><td><span class="st s-ok">已发布</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="chg">
+    <div><div class="t">② 现状</div><div class="c"><b>场景集与引用计数已有</b><code>Basic</code>、4 个成员、被 6 个配置引用都在线上。没有版本、没有成员修订、没有影响提示。</div></div>
+    <div><div class="t">③ 本次改动</div><div class="c"><b>加版本 + 引用方式</b>成员变化生成新版本；配置可钉住某版或跟随最新；保存前列出受影响配置与范围变化。</div></div>
+    <div><div class="t">⑤ 为什么这样改</div><div class="c"><b>范围变化不再无声</b>结果变差时能先排除「回归范围变了」；配置负责人在变化发生时就知道，不是事后。</div></div>
+    <div><div class="t">⑥ 本期与后续边界</div><div class="c"><b>一项</b>钉住还是跟随作为默认 <span class="fl fl-pm">待产品决策</span>；本方案倾向门禁钉住、日常回归跟随。</div></div>
+  </div>
+</section>
+
+<!-- ================= 07 评测配置 ================= -->
+<section class="sec" id="s5">
+  <div class="eyebrow">07 · STEP 5 · 组装评测配置 <span class="fl fl-p0">本期只做衔接</span> <span class="fl fl-p1">引用树与升级影响下一阶段</span></div>
+  <h2><code>PnC PR Regression</code> v3 → v4，<br>要能看清引用了什么、缺了什么、影响谁。</h2>
+
+  <div class="path"><span class="lb">位置</span>
+    <span>导航 <b>评测配置</b> <code>/mementos/evaluation-profiles</code></span><span class="sep">→</span>
+    <span>目前只有<b>列表</b>和<b>版本历史弹窗</b></span><span class="sep">→</span>
+    <span class="cur">本次在弹窗内补两块：<b>引用树</b>与<b>完整性检查</b></span>
+    <span class="lb" style="margin-left:auto">补页面内新区域</span>
+  </div>
+
+  <div class="six">
+    <div class="prob"><div class="k"><span class="dot"></span>① 谁在使用</div><div class="v">
+      配置负责人只看到「评测数 10」和阶段名，无法知道这 10 项里有哪一项<b>只有计算器没有判定标准</b>——
+      那一项不参与门禁，跑了也不拦。也不知道自己引用的计算器是不是已经有了新版本。</div></div>
+    <div class="now"><div class="k"><span class="dot"></span>② 在正式站哪个位置</div><div class="v">
+      正式站已经不少：2 个配置有名称、版本、状态 active、评测数、执行阶段、创建者；
+      <b>版本历史弹窗已经有内容哈希、「被 N 次评测使用」，还有版本间的语义变化行</b>
+      （例如 <code>benchTestCase: — → bench-71e2a71d40fc</code>、<code>No semantic changes</code>）。
+      所以「配置有版本」不是新设计，缺的是<b>版本里面引用了什么精确版本</b>和<b>保存前的检查</b>。</div></div>
+    <div class="plan"><div class="k"><span class="dot"></span>③ 要完成什么</div><div class="v">
+      ① <b>引用树</b>：场景集版本 → 场景修订 → 计算器 → 判定标准 → 载具配置，逐层展开到精确版本。
+      ② <b>保存前完整性检查</b>：列出无判定标准的指标、引用了未发布资产、可用新版本。
+      <b>有阻断项不能保存为 active</b>；用户主动排除某项时必须看到范围从 5 变成 4。
+      ③ 新版本<b>不自动升级引用，也不自动停用旧版本</b>——升不升是引用方负责人的决定，但要能看到升级影响谁；
+      停用和撤销是资产所有者的另外两个动作（★ 全景图有三者的定义）。</div></div>
+  </div>
+
+  <div class="note n-warn"><b>本期与下一阶段在这一章的切分：</b><br>
+    <b>本期只做衔接，不重建配置能力。</b>只要两件事：㈠ 新发布的场景和指标能被选进配置；㈡ 选用时显示它的精确版本。
+    <b>配置的版本能力已经在线上了</b>（版本号、内容哈希、被 N 次评测使用、版本间变化摘要），本期<b>直接复用，不动它</b>。<br>
+    <b>下一阶段做完整引用树和保存前完整性检查</b>（本章画面里的两块）。<br>
+    <b>更后面做批量升级与升级影响分析</b>。<span class="fl fl-p2">更后面</span><br>
+    这样切的理由：完整性检查要能读到「每一项有没有判定标准」，这依赖第 04–05 章的资产字段先落地；
+    <b>顺序反了会做两遍。</b></div>
+
+  <div class="screen" data-nav="profiles" data-en="Mementos • Evaluation Profiles">
+    <div class="cap"><span class="nm">设计画面</span><span>评测配置 · 版本历史弹窗（在现有弹窗里加引用树与完整性检查）</span><span class="st s-line">示例数据</span></div>
+    <div class="body">
+      <div class="crumb">MEMENTOS 仿真评测 / <span>评测配置</span></div>
+      <div class="ph"><h4>评测配置</h4><span class="st s-mute">共 2 个配置（各取最新版本）</span>
+        <span class="btn pri" style="margin-left:auto">新建配置</span></div>
+
+      <div class="tw" style="margin-top:16px"><table>
+        <thead><tr><th>名称</th><th>版本</th><th>执行状态</th><th>评测数</th><th>阶段</th><th>创建者</th><th>创建时间</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr><td class="main">Develop / Latest</td><td>v3</td><td><span class="st s-ok">active</span></td>
+            <td class="num">15</td><td class="num">7 阶段</td><td>user.c@robotruck.jp</td>
+            <td class="num">08-21 09:02</td><td><span class="btn">版本历史</span></td></tr>
+          <tr style="background:var(--brand-bg)"><td class="main">PnC PR Regression<small>当前打开版本历史的这一行</small></td>
+            <td>v4</td><td><span class="st s-ok">active</span></td>
+            <td class="num">11</td><td class="num">5 阶段</td><td>user.c@robotruck.jp</td>
+            <td class="num">08-21 09:02</td><td><span class="btn pri">版本历史</span></td></tr>
+        </tbody>
+      </table></div>
+      <div class="hint" style="margin-top:8px">上面这张表<b>本章不改</b>，列与数据都是正式站现状（评测数由 10 变 11 是因为第 07 章新加了一个门禁项）。
+        本章改的全部在下面这个已有弹窗里。</div>
+
+      <div class="mask"><div class="modal">
+        <div class="mh"><span class="st s-line">弹窗</span><b>PnC PR Regression · 版本历史</b>
+          <span class="st s-ok">v4 · active</span><span class="x">✕</span></div>
+        <div class="mb">
+      <p class="hint" style="margin:0 0 12px">正式站现有弹窗已包含：版本、内容哈希、被 N 次评测使用、创建人时间、阶段清单、版本间变化摘要。下面这张表是现有格式。</p>
+
+      <div class="tw"><table style="min-width:945px">
+        <thead><tr><th>版本</th><th>内容哈希</th><th>评测数</th><th>被评测使用</th><th>创建</th><th>相对上一版的变化</th></tr></thead>
+        <tbody>
+          <tr><td class="main">v4 <span class="st s-ok">当前</span></td><td><code>3d81ff20ac57…</code></td><td class="num">11</td>
+            <td class="num">0 次</td><td>user.a · 09-09 15:10</td>
+            <td><code>sceneSet: Basic v1 → Basic v2</code><small><code>criteria: + clearance-min@1</code></small></td></tr>
+          <tr><td class="main">v3</td><td><code>b7e4a0125cd9…</code></td><td class="num">10</td><td class="num">37 次</td>
+            <td>platform · 08-21 09:02</td><td><code>No semantic changes</code></td></tr>
+        </tbody>
+      </table></div>
+
+      <h4 style="margin:26px 0 0">v4 的引用树 <span class="fl fl-new">新增</span></h4>
+      <div class="tw"><table style="min-width:820px">
+        <thead><tr><th style="width:26%">层级</th><th style="width:34%">引用的精确版本</th><th style="width:16%">引用方式</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td class="main">场景集</td><td><code>Basic</code> v2 · 内容哈希 <code>a71c0d4e8f36</code></td>
+            <td><span class="st s-line">钉住 v2</span></td><td>5 个成员，见第 06 章</td></tr>
+          <tr><td>　└ 场景修订</td><td><code>example r1</code> · <code>left_lc_3ln_sv r1</code> · <code>right_lc_3ln_sv r1</code> · <code>staticfront r1</code> · <code>merge_slow_lead_sv r2</code></td>
+            <td><span class="st s-mute">随场景集版本确定</span></td><td>每个成员的精确修订都写死在这一版里</td></tr>
+          <tr><td class="main">指标计算器</td><td><code>collision@1.0.4</code>、<code>lateral-clearance@1.0.0</code></td>
+            <td><span class="st s-line">精确版本</span></td><td>注册表里的不可变版本</td></tr>
+          <tr><td class="main">判定标准</td><td><code>collision-free@1</code>、<code>clearance-min@1</code></td>
+            <td><span class="st s-line">精确版本</span></td><td>门禁项</td></tr>
+          <tr><td class="main">载具配置</td><td><code>rt-vehicle-config-v001@20260818.132344+git40581b7-1</code></td>
+            <td><span class="st s-line">精确版本</span></td><td>可在创建 Run 时临时覆盖（第 08 章）</td></tr>
+          <tr><td class="main">执行阶段</td><td>Compile · Unit Tests · Build Simulation Image · Closed-loop Simulation · Coverage</td>
+            <td><span class="st s-mute">5 个阶段</span></td><td>与正式站 v3 的阶段一致</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="note n-warn" style="margin-top:16px"><b>保存前完整性检查（新增） · 1 项错误（阻断）· 2 项警告（提示）</b>
+        <div class="hint" style="margin:6px 0 8px">级别语义与第 03 章草稿校验一致：<b>错误＝这样存下去必然跑不出有效结果；警告＝能跑，但影响可复用性或不进门禁。</b></div>
+        <div class="tw"><table style="min-width:560px">
+          <thead><tr><th>级别</th><th>问题</th><th>影响</th><th>动作</th></tr></thead>
+          <tbody>
+            <tr><td><span class="st s-err">错误 · 阻断</span></td>
+              <td><code>merge_slow_lead_sv</code> 引用的 <code>lateral-clearance@0.9.0</code> 已被打回，未发布</td>
+              <td>该场景无法产出 <code>min_clearance</code>，门禁项 <code>clearance-min@1</code> 会全部落到「无法判定」</td>
+              <td><span class="btn pri">改为引用 <code>@1.0.0</code></span><small>已发布版本，一键替换</small></td></tr>
+            <tr><td><span class="st s-warn">警告 · 提示</span></td>
+              <td><code>clearance_p05</code> 有计算器、无判定标准</td>
+              <td>会算出数值，<b>可以进数值比较与趋势</b>，但<b>不参与门禁、不产生通过/失败</b>；门禁分母仍是 5 个场景 × 2 个门禁项</td>
+              <td>保留为观测项 <span class="fl fl-pm">建议、待确认</span><small>与「场景完全没有指标」不同，见第 05 章那张对照表</small></td></tr>
+            <tr><td><span class="st s-warn">警告 · 提示</span></td>
+              <td><code>collision@1.0.4</code> 有新版本 <code>@1.0.5</code></td>
+              <td><b>不自动升级，旧版仍是启用状态</b>，不换也能继续跑。换版本会影响另外 1 个配置和 4 个场景</td>
+              <td><span class="btn">查看升级影响</span><small>升级 / 停用 / 撤销的区别见 ★ 全景图</small></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div class="note n-info" style="margin-top:12px"><b>如果用户主动排除某一项：</b>
+        比如排除 <code>staticfront</code>，界面必须同时把门禁分母从「5 个场景」改写成「<b>4 个场景 · 1 个被手动排除</b>」，
+        并要求填写排除原因。排除不允许静默——这是本次的硬规则。</div>
+        </div>
+        <div class="mf"><span class="btn off">保存为 active</span>
+          <small class="mute">存在 1 项阻断，需先修好引用才能保存为 active</small>
+          <span class="btn">另存为草稿版本</span>
+          <span class="fl fl-new" style="margin-left:auto">新增：阻断项直接决定按钮可用性</span></div>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="chg">
+    <div><div class="t">② 现状</div><div class="c"><b>版本与哈希已有</b>版本历史弹窗已有内容哈希、被 N 次评测使用、语义变化行。缺的是引用了哪些精确版本、缺什么、升级影响谁。</div></div>
+    <div><div class="t">③ 本次改动</div><div class="c"><b>引用树 + 完整性检查</b>逐层展开到精确版本；阻断项不能存为 active；新版本不自动升级；手动排除必须改写分母并写原因。</div></div>
+    <div><div class="t">⑤ 为什么这样改</div><div class="c"><b>不会跑完才发现漏测</b>保存时就知道哪一项不参与门禁；别人升级不会悄悄换掉自己的口径。</div></div>
+    <div><div class="t">⑥ 本期与后续边界</div><div class="c"><b>两项</b>① 无判定标准：建议<b>只警告不阻断</b>，数值可比但不出结论 <span class="fl fl-pm">建议、待确认</span>
+      ② 「谁引用了这个计算器」的反向查询能否实现 <span class="fl fl-dev">待研发确认</span></div></div>
+  </div>
+</section>
+
+<!-- ================= 08 创建 Run ================= -->
+<section class="sec" id="s6">
+  <div class="eyebrow">08 · STEP 6 · 创建 Run <span class="fl fl-p0">本期</span></div>
+  <h2>三步向导已经在线上了。<br>要补的是「预填的是哪一版」和「有阻断能不能拦住」。</h2>
+
+  <div class="path"><span class="lb">位置</span>
+    <span>导航 <b>运行</b> → 按钮 <b>新建运行</b> → 弹窗标题 <b>触发运行</b></span><span class="sep">→</span>
+    <span class="cur">第二步 <b>内容</b> 与第三步 <b>冻结与摘要</b>（两步都已存在）</span>
+    <span class="lb" style="margin-left:auto">改现有向导</span>
+  </div>
+
+  <div class="note n-ok"><b>先纠正一个可能被误传的说法：</b>「创建 100 个场景的 Run 要逐个勾选」在正式站<b>不成立</b>。
+    现有向导第二步已经有「<b>从场景集开始（可选）</b>」，选中场景集会预填全部成员且可增删；
+    页面上还写明「<b>留空则运行所有未废弃的已发布场景</b>」。第三步的标题本身就是「<b>冻结与摘要</b>」，
+    并且已有「强制新建运行，不复用相同结果」。所以本章不是解决批量选择，而是解决三件事：
+    ① 预填来自场景集的<b>哪一版</b>；② 有阻断项时能不能拦住；③ 临时覆盖项在结果里怎么被记住。</div>
+
+  <div class="note n-ok"><b>第二个要纠正的说法：冻结这件事平台已经做了很多。</b>本轮实测 Run <code>run-b2ce0262</code> 的「执行详情」，
+    里面已经记着：评测配置 <code>Develop / Latest · v3</code>、每个场景的载具配置与<b>精确地图版本</b>、
+    仿真镜像的 <code>sha256:…</code> 摘要、车辆模型清单哈希、<b>配置快照哈希</b>，台架段还记着 <code>rtpkg-cli</code> 与 <code>rtasset</code> 的冻结版本、
+    Geofence 版本、ENU 基准点，并且写着一句<b>「本次运行冻结的用例与依赖版本，不随后续更新而变化。」</b><br>
+    <b>所以本期在这一章的改动主要是「把已经记下来的东西在开跑前也显示出来」</b>，成本比重新设计一套冻结机制低得多。
+    真正缺的只有两项：<b>场景没有精确修订号</b>（只有内容哈希），以及<b>判定标准在执行详情里显示为一段描述文字</b>，
+    不是 <code>collision-free@1</code> 这样的精确标识。SIL 段也建议补上台架段那句冻结声明。</div>
+
+  <div class="note n-info"><b>这一步也是「草稿试跑」的落点。</b>从第 03 章草稿卡片点「用这个草稿试跑」，
+    进入的就是这个向导，第二步的场景位<b>已预填该草稿</b>。摘要里会明确写「输入含未发布草稿 <code>draft-9c41f0ab</code>」，
+    结果页同样标注。<b>这条路径不需要评审，也不受校验结果阻断</b>——阻断只针对下面那些「引用了未发布公共资产」的情况。
+    <span class="fl fl-pm">建议、待确认</span></div>
+
+  <div class="six">
+    <div class="prob"><div class="k"><span class="dot"></span>① 谁在使用</div><div class="v">
+      提交人点「新建运行」，选 <code>PnC PR Regression</code>，从 <code>Basic</code> 预填 5 个场景，开跑。
+      三小时后一批场景的门禁项全是空的——因为其中一个判定标准引用的计算器还没发布。
+      这件事在点「开始」之前平台是知道的，但没说。</div></div>
+    <div class="now"><div class="k"><span class="dot"></span>② 在正式站哪个位置</div><div class="v">
+      向导三步：<b>目标</b>（分支 / Commit / 被测对象）、<b>内容</b>（评测配置、从场景集开始、本次运行的场景、高级/可选覆盖项：载具、版本、地图，仅对本次运行生效）、
+      <b>冻结与摘要</b>（运行摘要 + 强制新建运行）。Run 详情的「执行详情」里已经有<b>配置快照哈希</b>。</div></div>
+    <div class="plan"><div class="k"><span class="dot"></span>③ 要完成什么</div><div class="v">
+      在第三步的摘要里把冻结内容<b>写全到精确版本</b>（配置版本、场景集版本、每个场景的修订、计算器、判定标准、载具、地图）；
+      把第 07 章的完整性检查<b>搬到这里再跑一次</b>：有阻断项时「开始运行」禁用并说明；
+      临时覆盖项必须在摘要里高亮为「<b>本次覆盖</b>」，并<b>写入 Run 详情</b>，否则事后无法解释差异。</div></div>
+  </div>
+
+  <div class="screen" data-nav="runs" data-en="Mementos • Runs">
+    <div class="cap"><span class="nm">设计画面</span><span>运行列表 → 触发运行弹窗 · 第 3 步「冻结与摘要」（现有步骤，补精确版本与阻断）</span><span class="st s-line">示例数据</span></div>
+    <div class="body">
+      <div class="crumb">MEMENTOS 仿真评测 / <span>运行</span></div>
+      <div class="ph"><h4>运行</h4><span class="st s-mute">共 144 次运行</span>
+        <span class="btn pri" style="margin-left:auto">新建运行</span></div>
+      <div class="hint" style="margin-top:12px">入口就是右上角这个正式站已有的<b>新建运行</b>按钮。点击后打开的「触发运行」弹窗
+        是现有的三步向导，本章只改第三步的内容，<b>不加第四步、不改步骤名</b>。</div>
+
+      <div class="mask"><div class="modal">
+        <div class="mh"><span class="st s-line">弹窗</span><b>触发运行</b>
+          <span class="st s-mute">第 3 步 / 共 3 步</span><span class="x">✕</span></div>
+        <div class="mb">
+      <div class="life" style="margin:0 0 18px">
+        <span class="p"><span class="i">1</span>目标</span><span class="arrow">→</span>
+        <span class="p"><span class="i">2</span>内容</span><span class="arrow">→</span>
+        <span class="p a"><span class="i">3</span>冻结与摘要</span>
+        <span class="st s-mute" style="margin-left:auto">正式站已有的三步，步骤名未改</span>
+      </div>
+
+      <div class="two" style="margin-top:0">
+        <div>
+          <h4 style="margin:0 0 6px">本次运行将冻结以下输入 <span class="fl fl-new">新增：展开到精确版本</span></h4>
+          <div class="tw"><table class="rules" style="min-width:480px"><tbody>
+            <tr><td>分支 / Commit</td><td><code>fix/merge-clearance</code> · <code>a91f0c7</code></td></tr>
+            <tr><td>评测配置</td><td><code>PnC PR Regression</code> <b>v4</b> · 哈希 <code>3d81ff20ac57</code></td></tr>
+            <tr><td>场景集</td><td><code>Basic</code> <b>v2</b> · 5 个成员</td></tr>
+            <tr><td>本次运行的场景</td><td>5 个（由场景集预填，未增删）<small>example r1 · left_lc_3ln_sv r1 · right_lc_3ln_sv r1 · staticfront r1 · merge_slow_lead_sv r2</small></td></tr>
+            <tr><td>指标计算器</td><td><code>collision@1.0.4</code> · <code>lateral-clearance@1.0.0</code></td></tr>
+            <tr><td>判定标准</td><td><code>collision-free@1</code> · <code>clearance-min@1</code></td></tr>
+            <tr><td>载具配置</td><td><span class="st s-warn">本次覆盖</span> <code>rt-vehicle-config-v002@20260901.094510+gitc3d18a2-1</code>
+              <small>配置里是 v001；覆盖仅对本次运行生效，会写入 Run 详情</small></td></tr>
+            <tr><td>地图</td><td><code>maps/atsugiminami_tomeimiyoshi_forward@2026.02.10-00</code></td></tr>
+            <tr><td>执行阶段</td><td>5 个（Compile / Unit Tests / Build Simulation Image / Closed-loop Simulation / Coverage）</td></tr>
+            <tr><td>预计冻结哈希</td><td><code>7c1de90a4b2f</code><small>对应 Run 详情「执行详情」里已有的「配置快照哈希」</small></td></tr>
+          </tbody></table></div>
+
+          <div class="note n-ok" style="margin-top:14px"><b>放行检查 · 0 项阻断 · 1 项提示</b><br>
+            <span class="st s-warn">提示</span> <code>clearance_p05</code> 为观测项，不参与门禁。本次门禁分母：<b>5 个场景 × 2 个门禁项 = 10</b>。<br>
+            <span class="mute">如果存在阻断项，这里显示红色，且「开始运行」按钮禁用并写明缺什么、去哪里改，而不是让用户跑三小时再发现。</span></div>
+        </div>
+        <div class="aside">
+          <h4>运行摘要 <span class="fl fl-now">正式站已有此区</span></h4>
+          <dl>
+            <dt>运行名称</dt><dd>fix/merge-clearance · PnC PR Regression</dd>
+            <dt>被测对象</dt><dd>planning</dd>
+            <dt>场景数</dt><dd>5</dd>
+            <dt>预计耗时</dt><dd>约 42 分钟</dd>
+          </dl>
+          <div class="note n-mute" style="margin-top:14px">
+            <label style="display:block;font-size:13px"><b>☑ 强制新建运行，不复用相同结果</b></label>
+            <span class="mute" style="font-size:12.5px">正式站已有此选项。本次只补一句说明：不勾选时，
+              若冻结哈希与已有运行完全相同，将复用其结果并在 Run 详情标出被复用的来源运行。</span>
+            <span class="fl fl-dev" style="margin-top:6px">复用的有效条件待研发确认</span>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="mf"><span class="btn">上一步</span>
+          <span class="btn brand">开始运行</span>
+          <small class="mute">0 项阻断，可以开始；存在阻断项时此按钮禁用，并写明缺什么、去哪个页面改</small>
+          <span class="fl fl-new" style="margin-left:auto">新增：阻断项决定按钮可用性</span></div>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="chg">
+    <div><div class="t">② 现状</div><div class="c"><b>三步向导与冻结已在线上</b>场景集预填、可增删、留空跑全部、临时覆盖项、强制新建运行、配置快照哈希都已存在。</div></div>
+    <div><div class="t">③ 本次改动</div><div class="c"><b>摘要写全 + 阻断拦住</b>冻结清单展开到精确版本与场景修订；完整性检查在开跑前复跑；临时覆盖高亮并写入 Run。</div></div>
+    <div><div class="t">⑤ 为什么这样改</div><div class="c"><b>不再跑完才发现</b>开跑前就知道门禁分母是多少、这次和配置声明的有什么差异。</div></div>
+    <div><div class="t">⑥ 本期与后续边界</div><div class="c"><b>两项</b>① 结果复用的有效条件 <span class="fl fl-dev">待研发确认</span>
+      ② 冻结清单能否由后端直接给出一个可比较的结构 <span class="fl fl-dev">待研发确认</span></div></div>
+  </div>
+</section>
+
+<!-- ================= 09 看结果 ================= -->
+<section class="sec" id="s7">
+  <div class="eyebrow">09 · STEP 7 · 看结果 <span class="fl fl-p0">本期重点</span></div>
+  <h2>结论分四种，原因单独一层，<br>百分比要带分母。</h2>
+
+  <div class="path"><span class="lb">位置</span>
+    <span>导航 <b>运行</b> → <b>Run 详情</b> <code>/mementos/runs/run-3f77a1c2</code></span><span class="sep">→</span>
+    <span class="cur">区域 <b>运行信息</b>、<b>检查项</b>、<b>场景结果</b>（三个区域都已存在）</span>
+    <span class="lb" style="margin-left:auto">改现有区域，不加新区</span>
+  </div>
+
+  <div class="note n-ok"><b>三个现状要先承认，避免把已有的讲成新做的：</b>
+    ① 运行列表<b>已经把执行状态和评测结论分成两列</b>；
+    ② 检查项表<b>已经把「执行」和「质量」分成两列</b>，质量可以为「—」；
+    ③ 场景结果<b>已经展开了</b>指标计算器执行情况、描述符输出（带字段与单位）、判定标准结果（观测值 / 阈值 / 原因）、指标证据 URI 和视频过期日期。
+    本章要补的只有：把已经在用的「—」<b>拆成不适用 / 无法判定 / 尚未产生</b>、把<b>原因单独放一层</b>、给比例<b>补分母</b>，
+    以及定清「什么数据能进入比较」。<b>没有一处是新建区域。</b></div>
+
+  <div class="six">
+    <div class="prob"><div class="k"><span class="dot"></span>① 谁在使用</div><div class="v">
+      <b>看结果的人：提 PR 的开发者、值班的人、要做版本判断的人。</b>他打开一次 Run，要回答一个问题：<b>这次结果说明了什么，我要不要动手</b>。
+      现在答不了：镜像构建失败、计算器进程退出，和真正的指标不达标，在列表上长得一样（都不是「通过」），
+      于是有人花半天查一个不存在的回归。另一半问题是「通过率 75%」不写分母，不知道是 6/8 还是 3/4。</div></div>
+    <div class="now"><div class="k"><span class="dot"></span>② 在正式站哪个位置</div><div class="v">
+      运行列表的<b>评测结论</b>列当前取值是「通过」和「—」。本轮实测看到同一个「—」出现在三种行上：
+      <b>不适用</b>（只跑台架的 <code>run-56c9c782</code>，场景也是「—」）、<b>未能完成</b>（0/4）、<b>已取消</b>。
+      检查项的<b>质量</b>列也用「—」表示不适用（例如「Reused existing image; no build was triggered」）。
+      <b>「—」已经在承担多个含义——所以这不是发明新符号，是把已有的一个符号拆开。</b></div></div>
+    <div class="plan"><div class="k"><span class="dot"></span>③ 要完成什么</div><div class="v">
+      让「结论」和「原因」变成<b>两层</b>：结论只有四个取值（通过 / 未通过 / 无法判定 / 不适用），原因是结论旁边的一行说明，<b>可以是「原因未知」</b>。
+      再定清两件事：<b>无法判定的 Run 保留在哪些统计里</b>、<b>什么样的数据才能进入指标比较</b>。
+      所有比例带分子分母。</div></div>
+  </div>
+
+  <h3 class="blk">第一层：结论四个取值</h3>
+  <p class="hint">结论只回答「这次算不算数、算出什么」。<b>它不回答「谁的责任」</b>——责任在第二层，而且允许说不知道。</p>
+  <div class="tw"><table class="rules">
+    <thead><tr><th style="width:14%">评测结论</th><th style="width:32%">什么情况归到这里</th><th style="width:28%">正式站现在长什么样</th><th>看到它该做什么</th></tr></thead>
+    <tbody>
+      <tr><td><span class="st s-ok">通过</span></td>
+        <td>所有<b>必需项</b>都有有效结果，且全部满足判定条件</td>
+        <td>已有这个取值</td><td>无</td></tr>
+      <tr><td><span class="st s-err">未通过</span></td>
+        <td>至少一个必需项<b>有有效结果但不满足判定条件</b>。也就是：数算出来了，没达标。</td>
+        <td>目前会落到「—」里</td>
+        <td>看第 10 章的对比，定位哪个场景哪个指标变了</td></tr>
+      <tr><td><span class="st s-warn">无法判定</span></td>
+        <td>该产出结果的必需项<b>没有产出可用于判定的结果</b>。包括没跑起来、跑一半失败、跑完了但缺判定必需的输入、被取消。<br>
+          <b>注意：这里只说「没有得出判定」，不说是谁造成的。</b></td>
+        <td>目前落到「—」里，与不适用混在一起</td>
+        <td>看第二层的原因；能重试的重试（正式站已有重试按钮）</td></tr>
+      <tr><td><span class="st s-mute">不适用</span></td>
+        <td>这一项<b>本来就不需要产出判定</b>。例如只跑台架的 Run 没有闭环场景结论；镜像复用没有触发构建，所以没有构建质量。</td>
+        <td><b>已经在用了</b>：检查项「质量」列的「—」就是这个含义。本期只是把同一个含义<b>也用到 Run 级结论上，并写清它是「不适用」而不是「缺失」</b>。</td>
+        <td>无。<b>不适用不是问题，不要去查。</b></td></tr>
+      <tr><td><span class="st s-line">尚未产生</span></td>
+        <td>还在跑。这一档保留正式站现在的「—」写法即可。</td><td>已有</td><td>等</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="blk">第二层：原因（单独一行，允许「原因未知」）</h3>
+  <p class="hint">上一版把「无法判定」直接写成「责任方向是平台或环境，不是被测代码」——<b>这是错的</b>。
+    被测代码自己崩了也会导致跑不出结果。所以原因要按<b>能观测到什么</b>来写，观测不到就写「原因未知」，并给出下一步怎么查，而不是替人下结论。</p>
+  <div class="tw"><table class="rules">
+    <thead><tr><th style="width:19%">观测到的现象</th><th style="width:23%">原因行显示</th><th style="width:23%">能不能确定责任</th><th>下一步</th></tr></thead>
+    <tbody>
+      <tr><td>构建/环境阶段就失败，被测代码还没运行</td>
+        <td>「构建或环境阶段失败，本次未运行被测代码」+ 阶段名与日志链接</td>
+        <td><b>可以说与被测代码无关</b>，因为它没跑到</td>
+        <td>重试该阶段；连续失败找平台</td></tr>
+      <tr><td>仿真跑起来了，中途异常终止</td>
+        <td>「仿真中止于第 N 秒」+ 退出信息</td>
+        <td><b>不能确定。</b>可能是环境，也可能是被测代码。<b>界面上不猜。</b></td>
+        <td>看日志与回放；同一提交重试一次，判断是否稳定复现</td></tr>
+      <tr><td>仿真跑完，计算器执行失败</td>
+        <td>「指标计算器 <code>x@1.0.0</code> 执行失败」+ 计算器版本与错误摘要</td>
+        <td>指向计算器或它的输入，<b>但不等于计算器有问题</b>——也可能是这个场景的数据它处理不了</td>
+        <td>拿同一场景的历史 Run 对照：以前能算说明是这次的数据，一直不能算说明是适配问题</td></tr>
+      <tr><td>计算器正常，但判定必需的字段缺失</td>
+        <td>「缺少判定必需的字段 <code>min_clearance</code>」+ 判定标准的<b>缺失策略</b></td>
+        <td>按缺失策略办。正式站的判定标准已经有这一列（当前 <code>collision-free@1</code> 是「缺失时失败」）</td>
+        <td>缺失策略为「失败」→ 记未通过；为「无法判定」→ 记无法判定</td></tr>
+      <tr><td>运行被取消</td>
+        <td>「已取消」+ 取消人与时间</td><td>不是技术问题，不必归责</td><td>无</td></tr>
+      <tr><td><b>以上都对不上</b></td>
+        <td><b>「原因未知」</b>+ 一个「查看完整日志」入口 + 一个「反馈给平台」入口</td>
+        <td><b>明确写不知道。</b>不写成「疑似平台问题」，也不写成「场景问题」或「计算器问题」。</td>
+        <td>反馈后由平台补充原因分类；补上之后这条 Run 的原因行会更新</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note n-err"><b>这条规则的由来是一个真实例子。</b>本轮在正式站看到 Run <code>run-b2ce0262</code>：
+    评测结论<b>通过</b>、4/4 场景全过，但展开 Bench Test 后有<b>4 个组件错误占比 100%</b>、组件健康状态里<b>1 个 FATAL + 4 个 ERROR</b>，
+    而检查项的质量列是「—」。<b>信息已经采到了，只是没有进入结论。</b><br>
+    所以本期还要定一条：<b>结论必须覆盖所有已产出的必需项判定</b>。如果台架的组件健康属于必需项，它就要参与结论；
+    如果只作为观测信息，那就要在结论旁边显式写「台架：仅观测，不参与结论」，而不是留一个「—」让人自己猜。
+    <b>这一项算必需还是观测，需要确认</b> <span class="fl fl-pm">建议：先按「仅观测」并显式标注，待确认</span></div>
+
+  <h3 class="blk">无法判定的 Run 留在哪些统计里</h3>
+  <p class="hint">上一版写的是「不计入趋势、不能作为基线」，这话太粗，会让一批 Run 从视野里消失。
+    正确的做法是<b>分开说</b>：历史记录和可靠性统计要留着（否则就看不见平台到底有多不稳），只有<b>指标比较</b>才需要过滤。</p>
+  <div class="tw"><table class="rules">
+    <thead><tr><th style="width:24%">用途</th><th style="width:14%">无法判定的 Run</th><th>为什么</th></tr></thead>
+    <tbody>
+      <tr><td><b>运行历史记录</b>（运行列表）</td><td><span class="st s-ok">保留</span></td>
+        <td>发生过就是发生过。列表里能按结论筛，但默认不隐藏。</td></tr>
+      <tr><td><b>结果完整度统计</b></td><td><span class="st s-ok">保留，而且是主角</span></td>
+        <td>完整度就是用来衡量「有多少该出结果的没出」。把无法判定剔掉，这个指标就永远是 100%，等于骗自己。</td></tr>
+      <tr><td><b>运行可靠性统计</b></td><td><span class="st s-ok">保留，而且是主角</span></td>
+        <td>「最近 50 次里有几次没跑出结果、卡在哪个阶段」是平台自己的健康指标，也是要不要投人修环境的依据。</td></tr>
+      <tr><td><b>指标数值比较 / 趋势曲线</b></td><td><span class="st s-err">按下面的有效条件过滤</span></td>
+        <td>没有数值的项没法画进曲线。但过滤要<b>显式</b>：图上写清「本区间 12 次运行，10 次有效」，不能默默丢掉。</td></tr>
+      <tr><td><b>作为基线被对比</b></td><td><span class="st s-warn">该项无效则该项不可比</span></td>
+        <td>不是整个 Run 不能当基线，而是<b>它缺结果的那几项</b>不能比。其他项照常可比。</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="blk">「能进入指标比较」的有效条件（单独定义）</h3>
+  <p class="hint">这一节是给第 10、11 章用的。<b>有效性判断的最小单位不是 Run，是「场景 × 指标」这一格</b>——这样一个 Run 里坏了一格，不会让整次运行作废。</p>
+  <div class="two">
+    <div>
+      <div class="tw"><table class="rules">
+        <thead><tr><th style="width:34%">一格要进入比较，必须</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>① 有数值</td><td>计算器成功输出了这个字段。没输出就是无效。</td></tr>
+          <tr><td>② 指标计算器版本相同</td><td>两边都是 <code>collision@1.0.4</code> 才能比数值。版本不同 → 标「计算口径不同，仅供参考」，<b>不进趋势曲线</b>。</td></tr>
+          <tr><td>③ 场景是同一个修订</td><td>场景内容变了，数值不可比。<b>这是本期要补场景修订号的原因。</b></td></tr>
+          <tr><td>④ 关键运行参数一致</td><td>至少地图版本和车辆配置要一致。本轮实测到 <code>run-b2ce0262</code> 里四个场景用了<b>两个不同地图版本</b>，这种差异必须能被发现。</td></tr>
+          <tr><td>⑤ 单位一致</td><td>注册表已经在展示字段单位（<code>episodes</code> / <code>frames</code> / <code>count</code>），照它校验。</td></tr>
+        </tbody>
+      </table></div>
+      <div class="note n-info" style="margin-top:10px"><b>注意：这五条里没有「必须有判定标准」。</b>
+        一个指标只有计算器、没有判定标准时，<b>数值照样有效、照样能比较和进趋势</b>，只是不产生通过/失败、不进门禁分母。
+        真正不能进比较的是<b>场景完全没有绑定指标</b>——那种情况根本没有数值（第 05 章有两者的对照表）。</div>
+    </div>
+    <div class="aside">
+      <h4>为什么必须单独定义</h4>
+      <dl>
+        <dt>正式站已经把这个问题摊开了</dt>
+        <dd>Run 详情「与基准 Run 对比」区域自己写着：<b>「任意两个 run 之间的对比 —— 每个 check、每个场景，不要求评测配置一致」</b>。
+          能比是好事，但<b>「能比」不等于「比出来的数有意义」</b>。这一节就是补上后半句。</dd>
+        <dt>不满足条件时不要拒绝显示</dt>
+        <dd>做法是<b>照样显示，但标注为什么不可比</b>，例如「计算器版本 1.0.4 → 1.0.5，数值不可直接比较」。
+          直接拒绝显示会让人转去手工对，反而更容易出错。</dd>
+        <dt>本期只出规则，不做页面</dt>
+        <dd>这套条件在本期写进方案并落到 Run 详情的标注上；<b>用它做聚合与趋势是下一阶段</b>（第 10、11 章）。
+          <span class="fl fl-p0">本期出规则</span> <span class="fl fl-p1">下一阶段用</span></dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="screen" data-nav="runs" data-en="Mementos • Runs • Run 3f77a1c2">
+    <div class="cap"><span class="nm">设计画面</span><span>Run 详情 · 运行信息 + 检查项 + 场景结果（现有三个区域内改动）</span><span class="st s-line">示例数据</span></div>
+    <div class="body">
+      <div class="crumb">MEMENTOS 仿真评测 / 运行 / <span>run-3f77a1c2</span></div>
+      <div class="ph"><h4>Run run-3f77a1c2</h4>
+        <span class="st s-ok">执行状态：已完成</span>
+        <span class="st s-err">评测结论：未通过</span>
+        <span class="sub">分支 <code>fix/merge-clearance</code> · 评测配置 <code>PnC PR Regression v4</code> · 提交 <code>a91f0c7</code> · 触发方式 manual · 创建人 <code>user.a</code> · 耗时 41m 12s</span></div>
+
+      <div class="pnav">
+        <span class="on">运行信息</span><span>工作流</span><span>检查项</span><span>场景结果</span>
+        <span>执行详情</span><span>与基准 Run 对比</span>
+        <span class="nw">冻结输入<span style="margin-left:5px;font-weight:800">本次新增</span></span>
+      </div>
+      <div class="hint" style="margin:-6px 0 16px">上面这排是正式站 Run 详情<b>已有的页内目录</b>，六个锚点名称原样保留。
+        本次只在末尾多一个「冻结输入」锚点，指向下面「执行详情」里补的那块内容。</div>
+
+      <div class="stats">
+        <div class="bad"><strong>8 / 9</strong>有效结果通过率 89%<small style="display:block;color:var(--err-d);opacity:.8">1 个门禁项未通过</small></div>
+        <div class="warn"><strong>9 / 10</strong>结果完整度 90%<small style="display:block;color:var(--warn-d);opacity:.8">1 个门禁项无有效结果</small></div>
+        <div><strong>5 / 5</strong>场景全部执行完成</div>
+        <div><strong>1</strong>观测项（不进门禁分母，数值仍可比）</div>
+      </div>
+      <div class="note n-mute" style="margin-top:12px"><b>分母写法（新增规则）：</b>门禁分母 = 5 个场景 × 2 个门禁项 = 10。
+        其中 <code>staticfront</code> 的 <code>min_clearance</code> 缺少判定必需的输入 → 该项记<b>无有效结果</b>，
+        因此有效分母为 9，通过率写作 <b>8/9</b>，而不是 8/10 或 80%。
+        一个有效结果都没有时写「—」，<b>不写 0%</b>。</div>
+
+      <h4 style="margin:26px 0 0">检查项 <span class="fl fl-now" style="margin-left:6px">正式站已有「执行 / 质量」两列与重试</span></h4>
+      <div class="tw"><table style="min-width:810px">
+        <thead><tr><th>检查项</th><th>执行</th><th>质量</th><th>说明</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr><td class="main">Compile</td><td><span class="st s-ok">已完成</span></td><td><span class="st s-ok">通过</span></td><td>—</td><td><span class="btn off">重试</span></td></tr>
+          <tr><td class="main">Unit Tests</td><td><span class="st s-ok">已完成</span></td><td><span class="st s-ok">通过</span></td><td>—</td><td><span class="btn off">重试</span></td></tr>
+          <tr><td class="main">Build Simulation Image</td><td><span class="st s-ok">已完成</span></td><td><span class="st s-ok">通过</span></td><td>—</td><td><span class="btn off">重试</span></td></tr>
+          <tr><td class="main">Closed-loop Simulation</td><td><span class="st s-ok">已完成</span></td><td><span class="st s-err">未通过</span></td>
+            <td>1 个场景的 <code>clearance-min@1</code> 未满足</td><td><span class="btn">重试</span></td></tr>
+          <tr><td class="main">Coverage</td><td><span class="st s-ok">已完成</span></td><td><span class="st s-mute">—</span></td>
+            <td>该阶段无质量判定<small>「—」在这一列的含义是「不适用」，与评测结论列的「—」不同</small></td><td><span class="btn off">重试</span></td></tr>
+        </tbody>
+      </table></div>
+      <div class="note n-info" style="margin-top:10px"><b>重试规则（新增）：</b>只有执行失败或异常的阶段可重试，已通过的阶段按钮禁用并解释原因；
+        每次尝试是独立记录，不覆盖上一次的结果。<span class="mute">正式站已有重试按钮，本次只补启用条件与历史保留。</span></div>
+
+      <h4 style="margin:26px 0 0">场景结果 <span class="fl fl-now" style="margin-left:6px">正式站已展开指标与判定证据</span>
+        <span class="fl fl-new" style="margin-left:4px">新增「无有效结果」的表达</span></h4>
+      <div class="tw"><table style="min-width:945px">
+        <thead><tr><th>场景</th><th>结论</th><th>collision_count / collision-free@1</th><th>min_clearance / clearance-min@1</th><th>clearance_p05</th><th>证据</th></tr></thead>
+        <tbody>
+          <tr><td class="main">example<small>r1</small></td><td><span class="st s-ok">通过</span></td>
+            <td>0 · <span class="st s-ok">通过</span><small>阈值 EQ 0</small></td>
+            <td>1.42 m · <span class="st s-ok">通过</span><small>阈值 GTE 0.5</small></td>
+            <td>1.60 m <span class="st s-mute">观测</span></td>
+            <td><span class="btn">指标</span> <span class="btn">回放</span></td></tr>
+          <tr><td class="main">left_lc_3ln_sv<small>r1</small></td><td><span class="st s-ok">通过</span></td>
+            <td>0 · <span class="st s-ok">通过</span></td><td>0.91 m · <span class="st s-ok">通过</span></td>
+            <td>1.05 m <span class="st s-mute">观测</span></td><td><span class="btn">指标</span> <span class="btn">回放</span></td></tr>
+          <tr><td class="main">right_lc_3ln_sv<small>r1</small></td><td><span class="st s-ok">通过</span></td>
+            <td>0 · <span class="st s-ok">通过</span></td><td>0.88 m · <span class="st s-ok">通过</span></td>
+            <td>0.97 m <span class="st s-mute">观测</span></td><td><span class="btn">指标</span> <span class="btn">回放</span></td></tr>
+          <tr><td class="main">staticfront<small>r1</small></td>
+            <td><span class="st s-warn">部分无法判定</span></td>
+            <td>0 · <span class="st s-ok">通过</span></td>
+            <td><span class="st s-warn">无有效结果</span><small>0 个有效检测帧，计算器按规则未输出该字段；判定标准缺失策略 = 无法判定</small></td>
+            <td><span class="st s-mute">无</span></td><td><span class="btn">指标</span> <span class="btn">回放</span></td></tr>
+          <tr><td class="main">merge_slow_lead_sv<small>r2 · 本次新增场景</small></td>
+            <td><span class="st s-err">未通过</span></td>
+            <td>0 · <span class="st s-ok">通过</span></td>
+            <td>0.34 m · <span class="st s-err">未通过</span><small>阈值 GTE 0.5 · 原因 comparison failed</small></td>
+            <td>0.41 m <span class="st s-mute">观测</span></td>
+            <td><span class="btn">指标</span> <span class="btn">回放</span></td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="note n-warn" style="margin-top:12px"><b>「缺证据」和「未通过」必须分开（本次规则）：</b>
+        <code>staticfront</code> 是<b>缺判定必需的输入</b> → 记「无有效结果」，从有效分母里剔除，<b>不算未通过</b>；
+        <code>merge_slow_lead_sv</code> 是<b>有数值但没达标</b> → 记「未通过」。<br>
+        <b>证据过期不推翻结论：</b>正式站场景结果里已有「视频将于 2026/9/15 过期」这类提示。视频过期只意味着不能做视频复核，
+        结论仍然成立；但如果过期或缺失的是<b>判定必需的计算输入</b>，才影响结论，并要说明缺的是什么。</div>
+
+      <h4 style="margin:26px 0 0">执行详情 <span class="fl fl-now" style="margin-left:6px">正式站已有，含配置快照哈希</span>
+        <span class="fl fl-new" style="margin-left:4px">新增：本次覆盖项高亮</span></h4>
+      <div class="tw"><table class="rules" style="min-width:480px"><tbody>
+        <tr><td>配置快照哈希</td><td><code>7c1de90a4b2f</code> —— 与第 08 章冻结摘要一致</td></tr>
+        <tr><td>车辆配置</td><td><span class="st s-warn">本次覆盖</span> <code>rt-vehicle-config-v002@20260901.094510+gitc3d18a2-1</code>
+          <small>配置 v4 声明的是 v001。差异原因：创建运行时使用了可选覆盖项</small></td></tr>
+        <tr><td>地图版本</td><td>各场景均为 <code>maps/atsugiminami_tomeimiyoshi_forward@2026.02.10-00</code></td></tr>
+        <tr><td>指标证据</td><td><code>gs://mementos-artifacts/runs/run-3f77a1c2/scenarios/&lt;scene&gt;/metrics</code></td></tr>
+      </tbody></table></div>
+    </div>
+  </div>
+
+  <div class="chg">
+    <div><div class="t">② 现状</div><div class="c"><b>结构齐、语义糊</b>两列状态、执行/质量分列、指标与判定证据、配置快照哈希都已存在。但「—」承担了太多含义，比例没有分母。</div></div>
+    <div><div class="t">③ 本次改动</div><div class="c"><b>结论四态 + 原因一层 + 双分母</b>「—」拆成不适用 / 无法判定 / 尚未产生；原因单独一行且允许「原因未知」；有效结果通过率与结果完整度并列带分母；缺输入与未达标在界面上分开。</div></div>
+    <div><div class="t">⑤ 为什么这样改</div><div class="c"><b>不再替人猜责任</b>不适用不会被当成故障去查；跑不出结果时看到的是能观测到的现象，而不是一句可能是错的归责；看到百分比不用再问分母。</div></div>
+    <div><div class="t">⑥ 本期与后续边界</div><div class="c"><b>本期：</b>四态 + 原因层 + 分母 + 有效条件（规则），全部在 Run 详情和运行列表的已有区域里做。<br>
+      <b>下一阶段：</b>用这套有效条件做趋势与聚合（第 10、11 章）；失败聚类与自动重试建议。<br>
+      <b>待确认：</b>① 台架组件健康算必需还是观测（<b>建议先按观测并显式标注</b>）<span class="fl fl-pm">建议、待确认</span>
+      ② 「过滤后才进趋势」需要后端在数据层支持 <span class="fl fl-dev">工作量待研发估算</span>
+      ③ 后端是否已能区分「没跑成」与「跑了没输出」 <span class="fl fl-chk">待核实</span></div></div>
+  </div>
+</section>
+
+<!-- ================= 10 对比 ================= -->
+<section class="sec" id="s8">
+  <div class="eyebrow">10 · STEP 8 · 与基准 Run 对比 <span class="fl fl-p1">下一阶段建设</span></div>
+  <h2>对比功能已经在线上了。<br>缺的是「能不能比」和「数值变了多少」。</h2>
+  <p class="dek"><b>这一章本期不开发，界面和使用流程完整画出</b>，理由是它直接依赖本期第 09 章定下的有效条件——
+    先把规则定对，下一阶段实现时不用回头改。</p>
+
+  <h3 class="blk">这一页什么时候会被打开（使用流程）</h3>
+  <div class="flow">
+    <div class="fs has"><div class="n">触发</div><div class="t">收到一次「未通过」</div><div class="s">PR 上的评测结论是未通过，或值班看到某次运行变红</div></div>
+    <div class="fs has"><div class="n">第 1 步</div><div class="t">打开这次 Run 详情</div><div class="s">先看第 09 章的结论与原因：是没达标，还是没算出来</div></div>
+    <div class="fs gap"><div class="n">第 2 步</div><div class="t">点「与基准 Run 对比」</div><div class="s">按分支找上一次成功的，或直接填基线 Run ID（<b>两种都已经能用</b>）</div></div>
+    <div class="fs gap"><div class="n">第 3 步</div><div class="t">先看可比性结论</div><div class="s">四档判断（下表）。关键输入不一致就换基线，别急着定回归</div></div>
+    <div class="fs gap"><div class="n">第 4 步</div><div class="t">看是哪个场景、变了多少</div><div class="s">场景表的数值列与变化量，定位到具体一格</div></div>
+    <div class="fs gap"><div class="n">出口</div><div class="t">要么修代码，要么去第 11 章</div><div class="s">怀疑是抖动而不是回归时，把这几次运行放进一个评测集合看重复性</div></div>
+  </div>
+
+  <div class="path"><span class="lb">位置</span>
+    <span>导航 <b>运行</b> → <b>Run 详情</b></span><span class="sep">→</span>
+    <span class="cur">区域 <b>与基准 Run 对比</b>（右侧目录第六项，正式站已有并可用）</span>
+    <span class="lb" style="margin-left:auto">改现有区域</span>
+  </div>
+
+  <div class="note n-ok"><b>本轮在正式站实测了这个功能，先把它现在能做什么写清：</b>
+    区域标题下写着「任意两个 run 之间的对比 —— 每个 check、每个场景，<b>不要求评测配置一致</b>」。
+    支持<b>按分支查找最新一次 Run</b>，也支持<b>直接输入 Run ID</b>。实测用 <code>run-c03d0dd5</code> 对比基线 <code>run-8e0aba98</code>，
+    输出两张表：检查项对比（本次 / 基线 / 分类：<b>无变化 / 已移除 / 新增</b>）和场景结果对比，
+    并且已经写明「<b>正在对比双方共同运行过的 4/4 个场景 —— 其余为新增或已移除场景</b>」。<br>
+    也就是说：<b>共同范围的识别、新增与移除的分类，平台都已经做了。</b>本章的改动只有两项增量。</div>
+
+  <div class="six">
+    <div class="prob"><div class="k"><span class="dot"></span>① 谁在使用</div><div class="v">
+      两次运行的<b>资产版本不同</b>时，现有对比照样给出「本次 / 基线 / 分类」。于是场景集换了版本、判定标准换了阈值造成的差异，
+      会被读成代码回归。另一个问题是现在只比通过/未通过，<b>看不到数值变了多少</b>——
+      0.34 m 和 0.52 m 都显示为「通过 → 未通过」，但一个是明显退化，一个是擦边。</div></div>
+    <div class="now"><div class="k"><span class="dot"></span>② 在正式站哪个位置</div><div class="v">
+      已有：任意两 Run 对比、按分支找最新、按 Run ID 指定、检查项与场景两张表、无变化 / 已移除 / 新增分类、共同范围计数。
+      没有：冻结输入的一致性核对，指标数值的前后对比，以及「退化 / 修复」这类方向判断。</div></div>
+    <div class="plan"><div class="k"><span class="dot"></span>③ 要完成什么</div><div class="v">
+      ① 在两张表<b>之上</b>加一条<b>可比性</b>结论：先核对冻结输入（配置版本、场景集版本、场景修订、计算器、判定标准、载具、执行阶段），
+      分四档给出「这次对比能支持什么结论」。<b>不改变现有「不要求配置一致」的行为</b>——仍然允许比，只是明确标注能得出什么。
+      ② 场景表增加<b>指标数值列与变化量</b>，并把分类细化为退化 / 修复 / 无变化 / 新增 / 已移除 / 无法判定。</div></div>
+  </div>
+
+  <div class="tw"><table class="rules">
+    <thead><tr><th style="width:20%">可比性档位</th><th style="width:32%">判定依据（冻结输入核对结果）</th><th>这次对比能支持什么结论</th></tr></thead>
+    <tbody>
+      <tr><td><span class="st s-ok">完全一致</span></td><td>冻结哈希相同，或全部输入逐项一致</td><td>差异可归因于被测代码。可以说「回归」或「修复」。</td></tr>
+      <tr><td><span class="st s-info">部分一致</span></td><td>成员范围不同，但共同场景的修订、计算器、判定标准一致</td>
+        <td>只在<b>共同范围</b>内谈代码变化——这正是正式站现在已经在做的事，本次只是把它写成明示结论。</td></tr>
+      <tr><td><span class="st s-warn">关键输入不一致</span></td><td>判定标准阈值、计算器版本、场景修订或载具配置不同</td>
+        <td><b>不支持代码回归结论。</b>界面给出提示并引导换一个基线；仍然显示对比表，但结论区不给「退化」标签。</td></tr>
+      <tr><td><span class="st s-err">该项不可比</span></td><td>某一格在任一侧<b>没有有效结果</b>（不满足第 09 章的有效条件）</td>
+        <td>这一格显示「不可比 · 缺结果」，<b>其余格子照常对比</b>。判断单位是「场景 × 指标」这一格，不是整次运行——
+          所以一次「无法判定」的运行仍然可以被选作基线，只是它缺结果的那几项没法比。</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="screen" data-nav="runs" data-en="Mementos • Runs • Run 3f77a1c2">
+    <div class="cap"><span class="nm">设计画面</span><span>Run 详情 · 与基准 Run 对比（现有区域，加可比性与数值变化）</span><span class="st s-line">示例数据</span></div>
+    <div class="body">
+      <div class="crumb">MEMENTOS 仿真评测 / 运行 / <span>run-3f77a1c2</span></div>
+      <div class="ph"><h4>Run run-3f77a1c2</h4>
+        <span class="st s-ok">执行状态：已完成</span><span class="st s-err">评测结论：未通过</span></div>
+      <div class="pnav">
+        <span>运行信息</span><span>工作流</span><span>检查项</span><span>场景结果</span>
+        <span>执行详情</span><span class="on">与基准 Run 对比</span>
+      </div>
+      <div class="hint" style="margin:-6px 0 16px">这一章改的是<b>同一个 Run 详情页最后一个已有锚点</b>，不是新页面。
+        下面就是滚动到「与基准 Run 对比」之后看到的内容。</div>
+
+      <div class="ph"><h4>与基准 Run 对比</h4>
+        <span class="sub">任意两个 run 之间的对比 —— 每个 check、每个场景，不要求评测配置一致<span class="fl fl-now" style="margin-left:6px">正式站原有说明，保留</span></span></div>
+      <div class="ph" style="margin-top:10px">
+        <span class="st s-line">基准 Run ID：run-8e0aba98</span><span class="btn pri">对比</span>
+        <span class="st s-mute">或按分支查找最新一次 Run</span></div>
+
+      <div class="note n-warn"><b>可比性：部分一致 —— 只在共同范围内谈代码变化</b>
+        <div class="tw"><table style="min-width:560px">
+          <thead><tr><th>冻结输入</th><th>本次 run-3f77a1c2</th><th>基线 run-8e0aba98</th><th>一致</th></tr></thead>
+          <tbody>
+            <tr><td class="main">评测配置</td><td>PnC PR Regression v4</td><td>PnC PR Regression v3</td><td><span class="st s-warn">否</span></td></tr>
+            <tr><td class="main">场景集</td><td>Basic v2 · 5 个</td><td>Basic v1 · 4 个</td><td><span class="st s-warn">否</span><small>共同场景 4 个</small></td></tr>
+            <tr><td class="main">共同场景的修订</td><td>example r1 / left r1 / right r1 / staticfront r1</td><td>同</td><td><span class="st s-ok">是</span></td></tr>
+            <tr><td class="main">collision@ / collision-free@</td><td>1.0.4 / 1</td><td>1.0.4 / 1</td><td><span class="st s-ok">是</span></td></tr>
+            <tr><td class="main">clearance-min@</td><td>1</td><td><span class="st s-mute">未引用</span></td><td><span class="st s-info">仅本次新增</span><small>不能与基线比，只能作为新增项看</small></td></tr>
+            <tr><td class="main">载具配置</td><td><span class="st s-warn">v002（本次覆盖）</span></td><td>v001</td><td><span class="st s-warn">否</span></td></tr>
+          </tbody>
+        </table></div>
+        <b>结论：</b>共同的 4 个场景里，<code>collision</code> 相关口径完全一致，可以谈变化；
+        但<b>载具配置不同</b>，横向间距类指标的差异不能归因于代码。<code>clearance-min@1</code> 是本次新增门禁项，基线没有，只能作为新增看。
+        <span class="btn" style="margin-top:8px">换一个载具配置一致的基线</span>
+      </div>
+
+      <h4 style="margin:24px 0 0">检查项 <span class="fl fl-now" style="margin-left:6px">正式站已有此表与三种分类</span></h4>
+      <div class="tw"><table>
+        <thead><tr><th>标签</th><th>本次运行</th><th>基线运行</th><th>分类</th></tr></thead>
+        <tbody>
+          <tr><td class="main">Compile</td><td><span class="st s-ok">通过</span></td><td><span class="st s-ok">通过</span></td><td><span class="st s-mute">无变化</span></td></tr>
+          <tr><td class="main">Unit Tests</td><td><span class="st s-ok">通过</span></td><td><span class="st s-ok">通过</span></td><td><span class="st s-mute">无变化</span></td></tr>
+          <tr><td class="main">Build Simulation Image</td><td><span class="st s-ok">通过</span></td><td><span class="st s-ok">通过</span></td><td><span class="st s-mute">无变化</span></td></tr>
+          <tr><td class="main">Closed-loop Simulation</td><td><span class="st s-err">未通过</span></td><td><span class="st s-ok">通过</span></td>
+            <td><span class="st s-err">变差</span><small>仅由新增场景与新增门禁项引起，见下表</small></td></tr>
+          <tr><td class="main">Coverage</td><td><span class="st s-ok">通过</span></td><td><span class="st s-ok">通过</span></td><td><span class="st s-mute">无变化</span></td></tr>
+          <tr><td class="main">Bench Test</td><td><span class="st s-mute">—</span></td><td><span class="st s-ok">已完成</span></td><td><span class="st s-info">已移除</span></td></tr>
+        </tbody>
+      </table></div>
+
+      <h4 style="margin:24px 0 0">场景结果 <span class="fl fl-now" style="margin-left:6px">正式站已有共同范围提示</span>
+        <span class="fl fl-new" style="margin-left:4px">新增数值列与变化量</span></h4>
+      <p class="hint" style="margin:8px 0 0">正在对比双方共同运行过的 <b>4/4</b> 个场景 —— 其余为新增或已移除场景。
+        <span class="mute">变化优先排序：先退化，再无法判定，再新增，最后无变化。</span></p>
+      <div class="tw"><table style="min-width:945px">
+        <thead><tr><th>场景</th><th>指标</th><th>本次</th><th>基线</th><th>变化</th><th>分类</th></tr></thead>
+        <tbody>
+          <tr><td class="main">merge_slow_lead_sv</td><td>min_clearance</td><td>0.34 m <span class="st s-err">未通过</span></td>
+            <td><span class="st s-mute">不存在</span></td><td>—</td><td><span class="st s-info">新增场景 · 首次结果</span></td></tr>
+          <tr><td class="main">staticfront</td><td>min_clearance</td><td><span class="st s-warn">无有效结果</span></td>
+            <td><span class="st s-mute">未引用该判定</span></td><td>—</td><td><span class="st s-warn">无法判定 · 新增门禁项</span></td></tr>
+          <tr><td class="main">example</td><td>collision_count</td><td>0 <span class="st s-ok">通过</span></td><td>0 <span class="st s-ok">通过</span></td>
+            <td>0</td><td><span class="st s-mute">无变化</span></td></tr>
+          <tr><td class="main">left_lc_3ln_sv</td><td>collision_count</td><td>0 <span class="st s-ok">通过</span></td><td>0 <span class="st s-ok">通过</span></td>
+            <td>0</td><td><span class="st s-mute">无变化</span></td></tr>
+          <tr><td class="main">right_lc_3ln_sv</td><td>collision_count</td><td>0 <span class="st s-ok">通过</span></td><td>0 <span class="st s-ok">通过</span></td>
+            <td>0</td><td><span class="st s-mute">无变化</span></td></tr>
+        </tbody>
+      </table></div>
+      <h4 style="margin:26px 0 0">分类与数值变化的显示规范 <span class="fl fl-new" style="margin-left:6px">新增</span>
+        <span class="st s-line" style="margin-left:4px">下表数值是格式示例，不是本次 Run 的数据</span></h4>
+      <div class="tw"><table style="min-width:820px">
+        <thead><tr><th>分类</th><th>什么时候用</th><th>界面显示</th><th>能不能说是代码问题</th></tr></thead>
+        <tbody>
+          <tr><td><span class="st s-err">退化</span></td>
+            <td>两侧都有有效结果，本次比基线差，且跨过阈值或超出容差</td>
+            <td>0.62 m → <b>0.41 m</b> <span class="st s-err">▼ 0.21</span><small>通过 → 未通过</small></td>
+            <td>可比性为「完全一致」时可以</td></tr>
+          <tr><td><span class="st s-ok">修复</span></td>
+            <td>两侧都有有效结果，本次比基线好，且跨过阈值</td>
+            <td>0.41 m → <b>0.62 m</b> <span class="st s-ok">▲ 0.21</span><small>未通过 → 通过</small></td>
+            <td>同上</td></tr>
+          <tr><td><span class="st s-mute">无变化</span></td>
+            <td>两侧结论相同，数值差异在容差内</td>
+            <td>0.61 m → 0.62 m <span class="st s-mute">＋0.01</span><small>通过 → 通过</small></td>
+            <td>不需要结论</td></tr>
+          <tr><td><span class="st s-info">新增</span></td>
+            <td>基线里没有这个场景或没有引用这个判定标准</td>
+            <td><span class="st s-mute">不存在</span> → <b>0.34 m</b><small>首次结果，不给变化量</small></td>
+            <td><b>不能。</b>没有可比的前值</td></tr>
+          <tr><td><span class="st s-info">已移除</span></td>
+            <td>基线里有，本次没跑（场景被移出场景集或阶段被删）</td>
+            <td>0.55 m → <span class="st s-mute">未运行</span><small>写明移除原因</small></td>
+            <td><b>不能。</b>要先确认是不是漏测</td></tr>
+          <tr><td><span class="st s-warn">无法判定</span></td>
+            <td>任一侧缺判定必需的输入，或该次运行是平台故障</td>
+            <td><span class="st s-warn">无有效结果</span> → 0.55 m<small>写明缺什么</small></td>
+            <td><b>不能。</b>先解决缺失，再谈对比</td></tr>
+        </tbody>
+      </table></div>
+      <p class="hint" style="margin:8px 0 0">容差是多少、跨阈值才算退化还是数值变差就算退化，需要产品决策。
+        本方案倾向<b>跨阈值才用「退化 / 修复」这两个词</b>，阈值内的变化只显示数值和箭头，不给结论词。
+        <span class="fl fl-pm">待产品决策</span></p>
+
+      <div class="note n-info" style="margin-top:12px"><b>这张表想说清的一句话：</b>
+        「Closed-loop Simulation 变差」<b>不是</b>代码回归——共同范围内的 <code>collision_count</code> 全部无变化，
+        变差完全来自本次新增的场景和新增的门禁项。没有可比性结论时，这句话需要读者自己推断；有了可比性结论，不必推断。</div>
+    </div>
+  </div>
+
+  <div class="chg">
+    <div><div class="t">② 现状</div><div class="c"><b>对比已可用</b>任意两 Run、检查项与场景两张表、无变化/新增/已移除分类、共同范围计数，均已上线且明确不要求配置一致。</div></div>
+    <div><div class="t">③ 本次改动</div><div class="c"><b>加可比性 + 数值</b>表上方给四档可比性结论；场景表补指标数值与变化量；分类细化到退化/修复；不改「允许跨配置比」的行为。</div></div>
+    <div><div class="t">⑤ 为什么这样改</div><div class="c"><b>不把资产变化读成代码回归</b>能区分明显退化和擦边；变差时第一眼就知道该不该查代码。</div></div>
+    <div><div class="t">⑥ 本期与后续边界</div><div class="c"><b>两项</b>① 冻结输入一致性能否由后端直接比对 <span class="fl fl-dev">待研发确认</span>
+      ② 「关键输入」的清单由谁定义、能否配置 <span class="fl fl-pm">待产品决策</span></div></div>
+  </div>
+</section>
+
+<!-- ================= 11 评测集合 ================= -->
+<section class="sec" id="s9">
+  <div class="eyebrow">11 · STEP 9 · 评测集合 <span class="fl fl-p1">下一阶段建设</span></div>
+  <h2>入口和新建对话框都在线上，<br>但里面是空的——要建的是详情页。</h2>
+  <p class="dek"><b>这一章本期不开发，但界面和使用流程照样画全</b>，因为它决定了本期第 09 章的有效条件要定成什么样。
+    下面每一块都是可以直接进研发评估的画面，不是占位。</p>
+
+  <div class="path"><span class="lb">位置</span>
+    <span>导航 <b>评测集合</b> <code>/mementos/run-sets</code></span><span class="sep">→</span>
+    <span>列表与<b>新建评测集合</b>对话框已有（名称 * / 描述 / 初始 Run）</span><span class="sep">→</span>
+    <span class="cur">本次新建的是<b>集合详情页</b></span>
+    <span class="lb" style="margin-left:auto">已有入口，详情待建</span>
+  </div>
+
+  <div class="six">
+    <div class="prob"><div class="k"><span class="dot"></span>① 谁在使用</div><div class="v">
+      同一个改动跑了三次，结果不完全一样。到底是代码不稳，还是仿真本身有抖动？
+      今天只能挨个打开三个 Run 详情、手工记数字。空态里写的「分组并比较多候选版本的 Run」正是这个需求，但没有承载它的页面。</div></div>
+    <div class="now"><div class="k"><span class="dot"></span>② 在正式站哪个位置</div><div class="v">
+      入口在，列表为空，空态文案是「创建一个来分组并比较多候选版本的 Run」。
+      新建对话框有：名称（必填）、描述、初始 Run（可选，从最近的 Run 中搜索选择，按顺序添加）。
+      <b>所以「成员从运行列表里挑」这个交互已经存在</b>，缺的是集合建好之后看什么。</div></div>
+    <div class="plan"><div class="k"><span class="dot"></span>③ 要完成什么</div><div class="v">
+      集合详情页四块：<b>Scene × Run 矩阵</b>、<b>指标趋势</b>、<b>稳定性</b>、<b>覆盖率</b>，每个格子可点进第 10 章的两两对比。
+      成员除了手工挑，再补一种<b>按配置 + 分支自动收最近 N 次</b>。
+      列头写 Commit + Run ID + 冻结输入是否一致，<b>不用伪版本号</b>（不写 <code>a91f0c7+1</code> 这种，它会让人以为代码有新版本）。</div></div>
+  </div>
+
+  <div class="screen" data-nav="run-sets" data-en="Mementos • Run Sets • 低速避障稳定性">
+    <div class="cap"><span class="nm">设计画面</span><span>评测集合详情 · 沿用正式站现有入口，新建详情页</span><span class="st s-line">示例数据</span></div>
+    <div class="body">
+      <div class="crumb">MEMENTOS 仿真评测 / 评测集合 / <span>低速避障稳定性</span></div>
+      <div class="ph"><h4>低速避障稳定性</h4>
+        <span class="st s-mute">5 个 Run · 配置 PnC PR Regression</span>
+        <span class="st s-warn">其中 1 次无法判定 · 仍是成员，只有缺结果的格子不进比较</span>
+        <span class="btn" style="margin-left:auto">添加 Run</span></div>
+      <div class="pnav" style="margin-top:14px">
+        <span class="on nw">矩阵</span><span class="nw">趋势</span><span class="nw">稳定性</span>
+        <span class="nw">覆盖率</span><span class="nw">成员 Run</span>
+        <span class="st s-mute" style="margin-left:auto;align-self:center">整页新建，四块内容都是本次新增</span>
+      </div>
+
+      <div class="stats">
+        <div class="warn"><strong>结果不一致</strong>同 Commit、同冻结输入的 3 次运行结果不同</div>
+        <div><strong>5 / 6</strong>覆盖率：目标场景清单 6 个，已跑 5 个</div>
+        <div><strong>1</strong>无法判定的运行<small style="display:block;opacity:.8">仍计入完整度与可靠性统计</small></div>
+        <div><strong>0.34 → 0.51 m</strong>min_clearance 波动范围</div>
+      </div>
+
+      <h4 style="margin:24px 0 0">Scene × Run 矩阵 <span class="fl fl-new" style="margin-left:6px">新建</span></h4>
+      <div class="tw"><table style="min-width:810px">
+        <thead><tr><th>场景</th>
+          <th>a91f0c7<small>run-3f77a1c2 · 第 1 次<br>冻结输入 A</small></th>
+          <th>a91f0c7<small>run-6b02e91d · 第 2 次<br>冻结输入 A</small></th>
+          <th>a91f0c7<small>run-d417ca80 · 第 3 次<br>冻结输入 A</small></th>
+          <th>7de4b12<small>run-8e0aba98 · 基线<br>冻结输入 B</small></th></tr></thead>
+        <tbody>
+          <tr><td class="main">merge_slow_lead_sv</td>
+            <td><span class="st s-err">未通过</span><small>0.34 m</small></td>
+            <td><span class="st s-ok">通过</span><small>0.51 m</small></td>
+            <td><span class="st s-err">未通过</span><small>0.42 m</small></td>
+            <td><span class="st s-mute">不存在</span></td></tr>
+          <tr><td class="main">staticfront</td>
+            <td><span class="st s-warn">无有效结果</span></td><td><span class="st s-warn">无有效结果</span></td>
+            <td><span class="st s-warn">无有效结果</span></td><td><span class="st s-mute">未引用该判定</span></td></tr>
+          <tr><td class="main">example</td><td><span class="st s-ok">通过</span></td><td><span class="st s-ok">通过</span></td>
+            <td><span class="st s-ok">通过</span></td><td><span class="st s-ok">通过</span></td></tr>
+          <tr><td class="main">left_lc_3ln_sv</td><td><span class="st s-ok">通过</span></td><td><span class="st s-ok">通过</span></td>
+            <td><span class="st s-ok">通过</span></td><td><span class="st s-ok">通过</span></td></tr>
+          <tr><td class="main">right_lc_3ln_sv</td><td><span class="st s-ok">通过</span></td><td><span class="st s-ok">通过</span></td>
+            <td><span class="st s-ok">通过</span></td><td><span class="st s-ok">通过</span></td></tr>
+          <tr><td class="main">cutin_left_fast<small>目标清单内，尚未纳入场景集</small></td>
+            <td colspan="4"><span class="st s-mute">未运行 —— 覆盖率缺口</span></td></tr>
+        </tbody>
+      </table></div>
+      <p class="hint" style="margin:10px 0 0">点任意两格可直接进入这两次运行的对比（第 10 章）；点单个格子进入那一次运行的 Run 详情，
+        并直接定位到该场景。「冻结输入 A / B」是分组标签，同一字母表示这几次运行的冻结哈希相同。</p>
+
+      <h4 style="margin:26px 0 0">趋势 · <code>merge_slow_lead_sv</code> 的 <code>min_clearance</code>
+        <span class="fl fl-new" style="margin-left:6px">新增</span></h4>
+      <div class="bars">
+        <div class="row"><span class="lb2">run-3f77a1c2 · 第 1 次</span>
+          <span class="tk"><span class="fi bad" style="width:34%"></span>
+            <span class="th" style="left:50%"><b>阈值 0.50</b></span></span>
+          <span class="vl">0.34 m</span></div>
+        <div class="row"><span class="lb2">run-6b02e91d · 第 2 次</span>
+          <span class="tk"><span class="fi" style="width:51%"></span>
+            <span class="th" style="left:50%"></span></span>
+          <span class="vl">0.51 m</span></div>
+        <div class="row"><span class="lb2">run-d417ca80 · 第 3 次</span>
+          <span class="tk"><span class="fi bad" style="width:42%"></span>
+            <span class="th" style="left:50%"></span></span>
+          <span class="vl">0.42 m</span></div>
+        <div class="row"><span class="lb2">run-8e0aba98 · 基线</span>
+          <span class="tk"><span class="fi na" style="width:100%"></span></span>
+          <span class="vl"><span class="st s-mute">不存在</span></span></div>
+        <div class="row"><span class="lb2">run-a02f7c31 · 平台故障</span>
+          <span class="tk"><span class="fi na" style="width:100%"></span></span>
+          <span class="vl"><span class="st s-warn">无法判定</span></span></div>
+      </div>
+      <p class="hint" style="margin:8px 0 0">横轴是 0–1.0 m，竖线是判定阈值 0.50 m。斜纹表示<b>没有数值</b>，
+        不是 0——这一条对应第 09 章「缺数据不补零」的规则。<b>没有数值的那一格不参与趋势计算</b>，但那次运行仍然列出来——
+        判断有效性的最小单位是「场景 × 指标」这一格，不是整次运行（第 09 章的有效条件）。</p>
+
+      <h4 style="margin:26px 0 0">成员 Run <span class="fl fl-new" style="margin-left:6px">新增</span></h4>
+      <div class="tw"><table style="min-width:1080px">
+        <thead><tr><th>Commit</th><th>Run ID</th><th>本 Commit 第几次</th><th>冻结输入</th>
+          <th>评测结论</th><th>进入趋势</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr><td class="main">a91f0c7</td><td><code>run-3f77a1c2</code></td><td class="num">1</td>
+            <td><span class="st s-line">A</span></td><td><span class="st s-err">未通过</span></td>
+            <td><span class="st s-ok">是</span></td>
+            <td><span class="btn">打开 Run</span> <span class="btn">与基线对比</span></td></tr>
+          <tr><td class="main">a91f0c7</td><td><code>run-6b02e91d</code></td><td class="num">2</td>
+            <td><span class="st s-line">A</span></td><td><span class="st s-ok">通过</span></td>
+            <td><span class="st s-ok">是</span></td>
+            <td><span class="btn">打开 Run</span> <span class="btn">与基线对比</span></td></tr>
+          <tr><td class="main">a91f0c7</td><td><code>run-d417ca80</code></td><td class="num">3</td>
+            <td><span class="st s-line">A</span></td><td><span class="st s-err">未通过</span></td>
+            <td><span class="st s-ok">是</span></td>
+            <td><span class="btn">打开 Run</span> <span class="btn">与基线对比</span></td></tr>
+          <tr><td class="main">a91f0c7</td><td><code>run-a02f7c31</code></td><td class="num">4</td>
+            <td><span class="st s-line">A</span></td><td><span class="st s-warn">无法判定</span><small>构建阶段失败，被测代码未运行</small></td>
+            <td><span class="st s-mute">0 格</span><small>这次没有任何格子有数值，所以进不了趋势；但它计入完整度与可靠性</small></td>
+            <td><span class="btn">打开 Run</span> <span class="btn">与基线对比</span><small>可以打开，缺结果的格子会标「不可比」</small></td></tr>
+          <tr><td class="main">7de4b12</td><td><code>run-8e0aba98</code></td><td class="num">1</td>
+            <td><span class="st s-line">B</span></td><td><span class="st s-ok">通过</span></td>
+            <td><span class="st s-ok">是</span><small>当前基线</small></td>
+            <td><span class="btn">打开 Run</span></td></tr>
+        </tbody>
+      </table></div>
+      <p class="hint" style="margin:8px 0 0"><b>回到具体一次运行的路径就在这张表里。</b>矩阵和趋势都是聚合视图，
+        任何一个数字都必须能点回它来自的那一次 Run——否则用户没法排查。
+        列头写的是 <b>Commit + Run ID + 本 Commit 第几次</b>，不写 <code>a91f0c7+1</code> 这种伪版本号。</p>
+
+      <div class="note n-warn" style="margin-top:14px"><b>稳定性怎么表述（本次规则）：</b>
+        <code>merge_slow_lead_sv</code> 在同 Commit、同冻结输入下三次结果不同（0.34 / 0.51 / 0.42 m，阈值 0.5），
+        界面只写「<b>结果不一致 · 待排查</b>」，<b>不下 flaky 结论</b>——三个样本不足以判定抖动，
+        而且真实原因也可能是代码本身在阈值附近。判定「疑似抖动」至少需要几次同条件重复，需要产品决策。
+        <span class="fl fl-pm">待产品决策</span></div>
+
+      <div class="note n-info" style="margin-top:12px"><b>覆盖率的分母（本次规则）：</b>
+        分母必须是<b>事先约定的目标场景清单</b>（这里是 6 个），<b>不能</b>拿平台里现有的场景数当成全部能力——
+        否则永远显示 100%，指标失去意义。<b>建议：目标清单就用场景集来承载</b>——正式站已经有场景集（<code>Basic</code>，被 6 个配置引用），
+        不必再造一个「清单」对象；由场景集的维护人负责。<span class="fl fl-pm">建议、待确认</span></div>
+    </div>
+  </div>
+
+  <h3 class="blk">聚合口径按指标语义定，不套用同一个函数</h3>
+  <p class="hint">「这个集合的 <code>min_clearance</code> 是多少」必须有明确答案，但<b>答案取决于这个指标是什么语义</b>。
+    上一版统一写成「放行取最差值、趋势取中位数」，<b>对事件计数型指标是错的</b>：三次里出现一次碰撞，中位数是 0，等于把事故抹平。
+    所以先分语义，再定聚合。</p>
+  <div class="note n-warn"><b>先分清是哪一层聚合，两层不共用一条规则：</b>
+    <b>层 1 · 单次 Run 之内</b>——同一次运行里跨多个场景、或一个场景跨多个 episode，怎么合成一个数。
+    <b>层 2 · 多次 Run 之间</b>——同一条件重复跑，或按时间排开看趋势，怎么合成一个数。<br>
+    这两层的正确答案<b>可以完全不同</b>：<code>min_clearance</code> 在层 2 取中位数是有意义的（同一个场景，反映稳定性），
+    在层 1 跨 5 个不同场景取中位数<b>没有物理意义</b>（见本章末尾第 ② 条，建议层 1 不做跨场景合并，只列每一格）。
+    <b>下面这张表定义的是层 2</b>；层 1 默认<b>不合并</b>，逐场景列出。<span class="fl fl-pm">建议、待确认</span></div>
+  <div class="tw"><table class="rules">
+    <thead><tr><th style="width:14%">指标语义</th><th style="width:18%">例子</th><th style="width:20%">层 2 · 进门禁怎么合</th><th style="width:22%">层 2 · 趋势怎么合</th><th>为什么不用另一种</th></tr></thead>
+    <tbody>
+      <tr><td><b>① 事件计数</b><small>越少越好，0 常常是硬要求</small></td>
+        <td><code>collision_count</code>（<code>episodes</code>）、<code>collision_frame_count</code>（<code>frames</code>）——正式站注册表里现有的字段</td>
+        <td><b>出现过就算未通过</b>：多次取<b>最大值</b>，或直接看「有没有任一次 &gt; 0」。</td>
+        <td>写<b>「N 次中出现 M 次」</b>加累计次数，<b>不画中位数曲线</b>。</td>
+        <td>中位数和均值都会把偶发事故抹掉：0 / 1 / 0 的中位数是 0，看上去完全干净。</td></tr>
+      <tr><td><b>② 连续裕度</b><small>有分布，越大（或越小）越好</small></td>
+        <td><code>min_clearance</code>、<code>max_overlap_count</code> 这类连续量</td>
+        <td><b>取最差值</b>（这里是最小值），与单次 Run 的口径一致。</td>
+        <td><b>取中位数</b>，要求同条件 ≥3 次，并同时给范围；不足 3 次就列出每次的值，不给聚合数。</td>
+        <td>门禁用中位数会放过一次真实越界；趋势用最差值波动太大，画成曲线看不出方向。</td></tr>
+      <tr><td><b>③ 比率 / 覆盖</b><small>本身就是分子分母</small></td>
+        <td>通过率、结果完整度、场景覆盖率</td>
+        <td>用<b>合并后的分子分母重新算</b>，<b>不对百分比取平均</b>。</td>
+        <td>始终带分子分母显示，例如「17 / 18 格」。</td>
+        <td>对百分比取平均，会让样本很少的那次拿到同样权重，得出一个谁都算不回去的数。</td></tr>
+      <tr><td><b>④ 耗时 / 资源</b><small>观测用，不进门禁</small></td>
+        <td>Run 耗时（正式站已显示 <code>41m 12s</code>）、镜像构建时长</td>
+        <td><b>不进门禁。</b></td>
+        <td><b>中位数 + 最慢一次</b>并列显示。</td>
+        <td>只看最慢一次，会把一次排队等待当成性能退化。</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="blk" style="font-size:15.5px">同一批运行，两个不同指标的聚合结果不一样</h3>
+  <div class="tw"><table class="rules">
+    <thead><tr><th style="width:19%">指标</th><th style="width:12%">三次同条件运行</th>
+      <th style="width:19%">① 单次判定<small>每次各自的，已有能力</small></th>
+      <th style="width:21%">② 重复运行稳定性<small>描述，不是结论</small></th>
+      <th>③ 集合放行结论<small>需要单独的判定规则</small></th></tr></thead>
+    <tbody>
+      <tr><td class="main">collision_count<small><code>collision@1.0.4</code> · 判定 <code>collision-free@1</code>（<code>EQ 0</code>）<br>语义：① 事件计数</small></td>
+        <td><b>0 / 1 / 0</b></td>
+        <td>第 1 次 <span class="st s-ok">通过</span> · 第 2 次 <span class="st s-err">未通过</span> · 第 3 次 <span class="st s-ok">通过</span>
+          <small>每一次都是确定的，<b>第 2 次真的撞了，照原样展示，不被后两次冲淡</b></small></td>
+        <td>写「<b>3 次中 1 次发生碰撞，累计 1 次</b>」。<b>不能写「中位数 0」</b>，那会让这一版看起来干净。
+          <small>这是对事实的描述，本身不等于放行或拦截</small></td>
+        <td><span class="st s-warn">要单独定</span>「出现过一次就算集合未通过」还是「允许 1/3 的偶发」，是<b>另一条规则</b>。
+          <small>建议：碰撞这类事件计数<b>出现过就算集合未通过</b>——但这条要业务确认，平台不默认套用</small>
+          <span class="fl fl-pm">建议、待确认</span></td></tr>
+      <tr><td class="main">min_clearance<small><code>lateral-clearance@1.0.0</code> · 判定 <code>clearance-min@1</code>（GTE 0.5 m）<br>语义：② 连续裕度</small></td>
+        <td><b>0.34 / 0.51 / 0.42 m</b></td>
+        <td>第 1 次 <span class="st s-err">未通过</span>（0.34） · 第 2 次 <span class="st s-ok">通过</span>（0.51 擦边） · 第 3 次 <span class="st s-err">未通过</span>（0.42）
+          <small>同一条阈值 GTE 0.5，每次各判各的</small></td>
+        <td>写「<b>中位数 0.42 m（3 次，范围 0.34–0.51，跨越阈值）</b>」。这里中位数是有意义的。
+          <small>「跨越阈值」本身就是稳定性信息，比一个平均数有用</small></td>
+        <td><span class="st s-warn">要单独定</span>建议取<b>最差值 0.34 &lt; 0.5 → 集合未通过</b>，但「几次里几次达标才放行」同样要业务确认。
+          <small>注意它和上一行的建议不是同一条规则——一个看有没有发生过，一个看最差值</small>
+          <span class="fl fl-pm">建议、待确认</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="note n-warn"><b>这三件事不要混成一个数字：</b>
+    <b>①单次判定</b>是平台已经在做的，每次运行各自出结论，<b>发生过就是发生过，照原样显示</b>；
+    <b>②稳定性</b>是对多次结果的描述（几次中几次、范围、方向），它<b>不产生通过／未通过</b>；
+    <b>③集合放行</b>是「这一批算不算过」，需要一条<b>单独的、写明白的判定规则</b>，而且不同语义的指标规则不一样。
+    <b>本方案只给建议，不默认平台自动套用</b>——第 11 章的集合详情页目前只显示「结果不一致」，不给集合级的通过／未通过，就是为了不在规则定下来之前先造一个结论。
+    <span class="fl fl-pm">建议、待确认</span></div>
+  <div class="note n-info"><b>语义从哪来：<span class="fl fl-pm">建议新增能力</span><span class="fl fl-dev">工作量待研发估算</span></b><br>
+    正式站的指标注册表<b>现在没有这个属性</b>。建议新增一个<b>聚合语义</b>属性，并且把它挂在<b>输出指标字段</b>上，不是挂在计算器上——
+    <code>collision@1.0.4</code> 一个计算器同时输出 <code>collision_count</code>、<code>collision_frame_count</code>、<code>max_overlap_count</code> 三个字段，
+    前两个是事件计数，第三个是连续量，<b>一个计算器给一个值会填错</b>。<br>
+    <b>每个字段要填两个值，不是一个：</b>「层 1（单次 Run 内）」和「层 2（多次 Run 间）」各一个，取值都是
+    事件计数 / 连续裕度 / 比率 / 观测 / <b>不聚合</b>。默认两层都是<b>不聚合</b>，只列出每一格、每一次的原始值，界面不猜。
+    <b>不要用一个值同时代表两层</b>——那正是上一版把中位数用到事件计数上的来源。<br>
+    填的时机建议放在第 04 章的评审里，由指标口径归口人和字段、单位一起看，不额外增加流程。<span class="fl fl-pm">建议、待确认</span></div>
+  <div class="note n-warn"><b>还有两条口径我给不出推荐，需要业务判断：</b>
+    ① <b>判定「疑似抖动」的最少重复次数。</b>建议先做成集合上的一个参数（默认 3 次），界面只写「结果不一致 · 待排查」，
+    <b>不显示 flaky 标签</b>，等积累了真实数据再定。<span class="fl fl-pm">建议、待确认</span><br>
+    ② <b>跨场景怎么汇总成一个数。</b>建议<b>本期和下一阶段都不做</b>——把 5 个不同场景的 <code>min_clearance</code> 平均起来没有物理意义。
+    集合层面只给「有几格未通过、是哪几格」。<span class="fl fl-pm">建议：不做，待确认</span></div>
+
+  <h3 class="blk">默认看谁的：保留团队视角</h3>
+  <div class="two">
+    <div>
+      <div class="tw"><table class="rules">
+        <thead><tr><th style="width:26%">页面</th><th style="width:30%">默认视图</th><th>为什么</th></tr></thead>
+        <tbody>
+          <tr><td>运行列表</td><td><b>团队全部运行</b>（保持正式站现状）</td>
+            <td>正式站现在就是全部 144 条，并且已经有「创建人」筛选。<b>不要改成默认只看我的</b>——评测的价值恰恰在于看别人的结果。</td></tr>
+          <tr><td>评测集合列表</td><td><b>团队全部集合</b></td><td>集合本来就是给多人一起看同一批 Run 用的。</td></tr>
+          <tr><td>场景库 / 指标注册表</td><td><b>全部资产</b></td><td>资产是公共库。默认只看自己的会导致重复造场景。</td></tr>
+          <tr><td>待办类视图</td><td><b>默认「待我处理」</b></td><td>只有这一类是以人为中心的，默认给自己合理；但要能一键切到「全部待处理」，方便代班。</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="aside">
+      <h4>「我创建的」是筛选项，不是默认值</h4>
+      <dl>
+        <dt>做法</dt><dd>每个列表页顶部提供三个快捷筛选：<b>全部 / 我创建的 / 待我处理</b>，默认停在「全部」。
+          运行列表的「创建人」筛选已经存在，「我创建的」只是它的一个预设值，不需要新做筛选器。</dd>
+        <dt>为什么强调这条</dt><dd>把默认改成「我创建的」看起来更贴心，实际后果是每个人只看自己那一小块，
+          <b>别人已经跑过的场景会被重复跑，别人发现的回归没人接</b>。协作视角要在默认值里，不能藏在筛选里。</dd>
+        <dt>例外</dt><dd>只有明确以「我的任务」为主题的视图（评审待办）才默认过滤到自己。</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="chg">
+    <div><div class="t">② 现状</div><div class="c"><b>空壳</b>入口、空态文案、新建对话框（名称/描述/初始 Run，从最近 Run 搜索按序添加）都已上线；列表为空，没有详情页。</div></div>
+    <div><div class="t">③ 本次改动</div><div class="c"><b>建详情页</b>矩阵 + 趋势 + 稳定性 + 覆盖率；格子可进对比；成员支持按配置与分支自动收最近 N 次；列头不用伪版本号。</div></div>
+    <div><div class="t">⑤ 为什么这样改</div><div class="c"><b>不用手工抄三个 Run</b>一眼看出是同条件下结果不一致还是真变差；覆盖缺口显式列出。</div></div>
+    <div><div class="t">⑥ 本期与后续边界</div><div class="c"><b>本期：不开发这一页</b>，只把它需要的规则定完——第 09 章的有效条件、上面四条聚合口径。<br>
+      <b>下一阶段：</b>按本章画面建详情页（矩阵 / 趋势 / 稳定性 / 覆盖率 / 成员）。<br>
+      <b>更后面：</b>跨集合的长期趋势。<br>
+      <b>建议已给：</b>聚合<b>按指标语义分四类</b>（事件计数 / 连续裕度 / 比率 / 耗时观测），
+      且<b>层 1（单次 Run 内）与层 2（多次 Run 间）各配一条规则、不共用</b>；
+      语义建议做成注册表上<b>输出指标字段</b>的新属性（<span class="fl fl-pm">建议新增能力</span>）由归口人在评审时标、覆盖率分母用<b>场景集</b>
+      <span class="fl fl-pm">建议、待确认</span>；<b>建议不做：</b>层 1 跨场景汇总成一个数。<br>
+      <b>本页不给集合级的通过／未通过</b>：单次判定、重复运行稳定性、集合放行是三件事，第三件需要单独的判定规则，本轮只给建议。<br>
+      同 Commit 的运行序号从哪来 <span class="fl fl-dev">工作量待研发估算</span></div></div>
+  </div>
+</section>
+
+<!-- ================= 12 后续维护 ================= -->
+<section class="sec" id="s10">
+  <div class="eyebrow">12 · STEP 10 · 后续维护 <span class="fl fl-p1">下一阶段</span> <span class="fl fl-pm">形态待确认</span></div>
+  <h2>资产会变旧、人会离组、阈值会改。<br>这些事今天没人主动看。</h2>
+  <p class="dek"><b>这一章本期不开发，界面照样画全</b>，因为它决定了前面几章的字段要不要提前留（责任人、采用状态、过期时间）。
+    下面的「资产工作台」是<b>候选形态之一</b>，不是已定方案；本章末尾给了不新增导航项的替代落点，两种都能承载同样的信息。</p>
+
+  <div class="path"><span class="lb">位置</span>
+    <span>汇总视图 → 候选：新增导航 <b>资产工作台</b>（不存资产）</span><span class="sep">｜</span>
+    <span>替代：各资产页面内的<b>「待我处理」筛选</b>，不新增页面</span><span class="sep">｜</span>
+    <span>审计 → <b>继续用现有的</b> <code>/mementos/audit-log</code></span>
+    <span class="lb" style="margin-left:auto">形态待确认</span>
+  </div>
+
+  <div class="six">
+    <div class="prob"><div class="k"><span class="dot"></span>① 谁在使用</div><div class="v">
+      待我评审的、我提交后校验出错误的、被打回的、发布了没被任何配置采用的、责任人已离组的、产物快过期的——
+      这些散在各自页面的列表里，没有人的工作流会主动经过它们。于是资产越攒越多，没人知道哪些还算数。</div></div>
+    <div class="now"><div class="k"><span class="dot"></span>② 在正式站哪个位置</div><div class="v">
+      <b>审计日志入口已存在，但当前账号打开是「共 0 条记录」+ 英文空态 <code>Insufficient permissions</code></b>——
+      所以它到底记了什么、谁能看，<b>本轮无法从界面确认</b>。<br>
+      另一处有现成范式：<b>自动触发 → 治理</b>标签已经做到 Kill Switch 需填<b>操作原因</b>、
+      页面直接写明需要「平台管理员或 Mementos Automation Admin」、并展示 Webhook 健康度（待处理/处理中/失败/死信）。</div></div>
+    <div class="plan"><div class="k"><span class="dot"></span>③ 要完成什么</div><div class="v">
+      ① 汇总视图（候选名「资产工作台」<span class="fl fl-pm">形态待确认</span>）里<b>分成两块，不合成一张表</b>：
+      <b>个人待办</b>（我今天要处理的）和<b>平台治理</b>（有人要定期复核的）——两块的使用者、使用时刻、处理动作都不一样，见下面两张表。
+      ② 每行点进去<b>回到原来的 Scene / Calculator / Criterion 详情</b>，它不是第二个资产库，也不是任何人的默认首页。
+      ③ 权限不足的按钮<b>禁用并写清缺什么权限找谁申请，不隐藏</b>——隐藏会让用户以为平台不支持，转头在本地绕过去。
+      ④ 审计沿用现有入口，只补要记录的动作与前后值。</div></div>
+  </div>
+
+  <div class="screen" data-nav="workbench" data-en="正式站没有这个路由，本次新增：Mementos • Asset Workbench">
+    <div class="cap"><span class="nm">设计画面</span><span>资产工作台（<b>候选形态</b> · 仅汇总，不存资产）</span><span class="st s-line">示例数据 · 下一阶段</span></div>
+    <div class="body">
+      <div class="crumb">MEMENTOS 仿真评测 / <span>资产工作台</span></div>
+      <div class="ph"><h4>资产工作台</h4>
+        <span class="sub">这里不存放资产，也不能在这里编辑资产。每一行点击后回到场景库或指标注册表的原详情页。</span></div>
+      <div class="pnav"><span class="on">个人待办</span><span>平台治理</span>
+        <span class="nw">两块分开，不合成一张表<span style="margin-left:5px;font-weight:800">本次结构</span></span></div>
+
+      <h4 style="margin:18px 0 4px">① 个人待办
+        <span class="st s-warn">4 件 · 3 类</span>
+        <span class="st s-mute">这一屏是 <code>user.a</code> 一个人的视角</span></h4>
+      <div class="hint" style="margin:0 0 8px"><b>谁在用：</b><b>本人</b>，这里是 <code>user.a</code>——他既提交自己的草稿，也被指派评审别人的。
+        换成 <code>user.b</code> 登录，这三行的对象和数字都不一样。
+        <b>什么时候用：</b>每天进平台第一眼，或收到一条评审请求之后。
+        <b>处理动作：</b>都是「改完就清掉这一行」，做完数字会减少。</div>
+      <div class="tw"><table style="min-width:880px">
+        <thead><tr><th>待办类别</th><th>事项数</th><th>具体对象（每个对象算一件）</th><th>我要做的动作</th><th>点击后去哪</th></tr></thead>
+        <tbody>
+          <tr><td class="main">待我评审</td><td class="num"><span class="st s-warn">2</span></td>
+            <td><code>draft-51b7c0d3</code>（场景草稿 · user.b 提交）<br>
+              <code>overlap-max@0.9</code>（判定标准草稿 · user.b 提交）</td>
+            <td>批准，或打回并写理由</td>
+            <td>场景库 → Scene 草稿 ／ 指标注册表 → 待评审</td></tr>
+          <tr><td class="main">我提交的 · 有错误</td><td class="num"><span class="st s-err">1</span></td>
+            <td><code>draft-9c41f0ab</code>（场景草稿）</td>
+            <td>修字段后重新校验（错误级，试跑也不放行）</td>
+            <td>场景库 → Scene 草稿（展开明细）</td></tr>
+          <tr><td class="main">我提交的 · 被打回</td><td class="num"><span class="st s-warn">1</span></td>
+            <td><code>lateral-clearance@0.9.0</code>（计算器 · 被 user.b 打回）</td>
+            <td>按评审意见改，改完重新提交</td>
+            <td>指标注册表 → 计算器详情</td></tr>
+        </tbody>
+      </table></div>
+      <div class="note n-info" style="margin-top:10px"><b>角标数字怎么算（本次口径）：</b>
+        角标统计的是<b>事项数</b>，不是类别数——这里是 <b>4</b>（2 + 1 + 1），不是 3。
+        <b>一个对象算一件</b>，并且<b>按对象去重</b>：同一个对象即使同时命中两类（例如既被打回、又被指派给我复看），角标里只算一次，列表里显示在<b>更紧急的那一类</b>下。<br>
+        <b>和左侧各页面的角标必须能对上：</b>闭环仿真用例 <b>2</b>（<code>draft-51b7c0d3</code> + <code>draft-9c41f0ab</code>）
+        ＋ 指标注册表 <b>2</b>（<code>overlap-max@0.9</code> + <code>lateral-clearance@0.9.0</code>）＝ 汇总入口 <b>4</b>。
+        对不上就是去重规则没实现对。<span class="fl fl-pm">建议、待确认</span></div>
+
+      <h4 style="margin:24px 0 4px">② 平台治理 <span class="st s-info">4 类 · 5 件 · 按周或按月看</span>
+        <span class="fl fl-pm" style="margin-left:6px">形态待确认</span></h4>
+      <div class="hint" style="margin:0 0 8px"><b>谁在用：</b>场景库维护人、指标口径归口人、平台负责人——<b>不是提交人本人</b>。
+        <b>什么时候用：</b><b>不是每天</b>，按周或按月复核一次，或者有人来问「这个资产还算数吗」的时候。
+        <b>处理动作：</b>多数是<b>做决定</b>（升级、停用、撤销、转派、清理），不是改内容。</div>
+      <div class="tw"><table style="min-width:880px">
+        <thead><tr><th>治理项</th><th>数量</th><th>对象</th><th>要做的决定</th><th>点击后去哪</th></tr></thead>
+        <tbody>
+          <tr><td class="main">已发布但未被任何配置采用</td><td class="num"><span class="st s-warn">1</span></td>
+            <td><code>merge_slow_lead_sv</code>（发布后 2 天）</td>
+            <td>推动它加入场景集，或确认它只是备用</td>
+            <td>场景详情弹窗 → 加入场景集</td></tr>
+          <tr><td class="main">有可用新版本，未升级</td><td class="num"><span class="st s-info">1</span></td>
+            <td><code>collision@1.0.4</code> → <code>@1.0.5</code></td>
+            <td><b>升级哪几处引用</b>、<b>旧版要不要停用</b>——这是两个独立决定（★ 全景图）</td>
+            <td>评测配置 → 版本历史 → 升级影响</td></tr>
+          <tr><td class="main">责任人已离组</td><td class="num"><span class="st s-mute">0</span></td>
+            <td>—</td><td>转派责任人（进审计）</td>
+            <td><b>需要跨资产查询</b>（按人查他名下所有资产），<b>承载页面待定</b>
+              <span class="fl fl-pm">待确认</span></td></tr>
+          <tr><td class="main">产物即将过期</td><td class="num"><span class="st s-warn">3</span></td>
+            <td>3 次运行的视频将于 09-15 过期</td>
+            <td>决定延长保留还是让它过期</td><td>Run 详情 → 场景结果</td></tr>
+        </tbody>
+      </table></div>
+      <div class="note n-mute" style="margin-top:12px"><b>为什么必须分开这两块：</b>个人待办<b>会被清空</b>，降到 0 是正常状态，所以适合放在导航角标上；
+        平台治理<b>几乎永远不是 0</b>（总有资产没被采用、总会出新版本）。两者混在一个数字里，那个红点会一直亮着，人很快就不看了。
+        <b>建议：导航角标只统计个人待办的事项数（此处 4 件）；治理项在页面里按周期提示，不进角标。</b><span class="fl fl-pm">建议、待确认</span><br>
+        <b>「产物即将过期」这一行的依据：</b>正式站 Run 详情的场景结果里已经有「视频将于 2026/9/15 过期」这样的提示，过期时间是现成信息，这里只是汇总。
+        <b>但保留周期到底多久、日志和 bag 是否同样过期，本轮没有确认。</b><span class="fl fl-dev">待研发确认</span></div>
+    </div>
+  </div>
+
+  <div class="chg">
+    <div><div class="t">② 现状</div><div class="c"><b>没有汇总视图</b>各页面各自有列表；审计日志入口存在但当前账号 <code>Insufficient permissions</code>，能力未确认。</div></div>
+    <div><div class="t">③ 本次改动</div><div class="c"><b>汇总入口内分两块 + 禁用而非隐藏</b>个人待办（会清零、进角标）与平台治理（不会清零、按周期看）分开呈现，各自写明使用者、使用时刻、处理动作；点击回原详情；权限不足写清缺什么找谁；审计沿用现有入口补记录范围。</div></div>
+    <div><div class="t">⑤ 为什么这样改</div><div class="c"><b>资产不再无声堆积</b>发布后未采用、未升级、快过期都有人看到；被禁用的按钮不会被误解成平台不支持。</div></div>
+    <div><div class="t">⑥ 本期与后续边界</div><div class="c"><b>本期：</b>只在各资产页面内做「待我处理」筛选，不新增页面、不做汇总。<br>
+      <b>下一阶段：</b>本章这张汇总视图。<b>形态两选一</b>——新增导航项，或做成各页面筛选的集合（见下方对照）。<br>
+      <b>更后面：</b>到期复核、责任人离组自动转派、通知接入。<br>
+      <b>待确认：</b>① 汇总视图的形态 <span class="fl fl-pm">建议：先做筛选，攒够了再看要不要独立入口</span>
+      ② 治理项要不要也进导航角标（<b>建议不进</b>，否则红点常亮）<span class="fl fl-pm">建议、待确认</span>
+      ③ 是否给负责人当默认首页（<b>建议不给</b>）<span class="fl fl-pm">建议、待确认</span>
+      ③ 审计日志现有记录范围与权限 <span class="fl fl-chk">待核实</span>
+      ④ 产物保留周期 <span class="fl fl-chk">待核实</span></div></div>
+  </div>
+
+  <h3 class="blk">如果不新增导航项，同样的信息落在哪</h3>
+  <p class="hint">这一栏是为了让「要不要新增入口」这个决定<b>不影响其他章节</b>。上面那六类待办，每一类都有一个现成页面可以承载。</p>
+  <div class="tw"><table class="rules">
+    <thead><tr><th style="width:21%">类型</th><th style="width:11%">属于哪一块</th><th style="width:31%">替代落点（不新增页面）</th><th>代价</th></tr></thead>
+    <tbody>
+      <tr><td>待我评审</td><td><span class="st s-warn">个人待办</span></td>
+        <td>场景库 → Scene 草稿区加「待我处理」筛选；指标注册表 → 待评审区同样加</td>
+        <td>要看两个页面。<b>这是最主要的代价。</b></td></tr>
+      <tr><td>我提交的 · 有错误</td><td><span class="st s-warn">个人待办</span></td>
+        <td>同上，草稿区筛选里多一个「有错误」</td><td>无</td></tr>
+      <tr><td>我提交的 · 被打回</td><td><span class="st s-warn">个人待办</span></td>
+        <td>同上，草稿区与计算器列表各加一个「被打回」筛选</td><td>无</td></tr>
+      <tr><td>已发布但未被采用</td><td><span class="st s-info">平台治理</span></td>
+        <td>场景库已发布表的「采用」列上直接筛「0 个配置」（第 05 章那一列）</td><td>无，本来就在那一页</td></tr>
+      <tr><td>有可用新版本未升级</td><td><span class="st s-info">平台治理</span></td>
+        <td>评测配置 → 版本历史弹窗里提示（第 07 章）</td><td>要逐个配置看</td></tr>
+      <tr><td>责任人已离组</td><td><span class="st s-info">平台治理</span></td>
+        <td><b>需要跨资产查询</b>——现有页面的筛选都是单一资产维度，按人横着查落不进任何一页</td>
+        <td><b>承载页面待定</b><small>可以是汇总视图，也可以是权限管理页里的一个「该用户名下资产」视图，本轮不定</small></td></tr>
+      <tr><td>产物即将过期</td><td><span class="st s-info">平台治理</span></td>
+        <td>运行列表加一个「产物即将过期」筛选</td><td>无</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note n-info"><b>结论建议：本期按「替代落点」做筛选就够，七类里有六类都能落到现有页面。</b>
+    个人待办三类全部能落到现有页面；治理四类里有三类也能落到现有页面，剩下「责任人已离组」<b>需要跨资产查询，承载页面待定</b>。
+    等资产数量涨上来、确实有人为这类跨资产问题发愁时，再决定要不要独立入口。
+    这样本期不背一个新页面的成本，前面几章也不依赖它。<span class="fl fl-pm">建议、待确认</span></div>
+
+  <h3 class="blk">审计要记什么（沿用现有审计日志入口）</h3>
+  <div class="tw"><table class="rules">
+    <thead><tr><th style="width:26%">动作</th><th style="width:34%">要记录的内容</th><th>是否必须写原因</th></tr></thead>
+    <tbody>
+      <tr><td>评审通过 / 打回</td><td>对象与修订、评审人、结论、理由原文</td><td><b>打回必须</b></td></tr>
+      <tr><td>发布</td><td>被批准的具体修订与内容哈希</td><td>否</td></tr>
+      <tr><td>版本升级引用</td><td>前后精确版本、受影响的配置清单</td><td><b>必须</b></td></tr>
+      <tr><td>手动排除某个门禁项 / 场景</td><td>排除前后的分母变化</td><td><b>必须</b></td></tr>
+      <tr><td>临时覆盖载具 / 地图</td><td>覆盖前后值、作用于哪一次运行</td><td><b>必须</b></td></tr>
+      <tr><td>废弃资产</td><td>对象、当时的引用清单</td><td><b>必须</b></td></tr>
+      <tr><td>管理员重新分配待办</td><td>前后责任人</td><td>是</td></tr>
+      <tr><td>管理员修改已有评审结论</td><td>前后结论 —— <b>修改本身也是一条记录，不允许静默改</b></td><td><b>必须</b></td></tr>
+    </tbody>
+  </table></div>
+  <div class="note n-warn"><b>这张表是本次的设计意图，不是现状。</b>正式站审计日志页面在当前账号下返回权限不足且 0 条记录，
+    所以现有实现已经记了哪些动作、字段是什么，本轮<b>没有确认</b>。落地前需要研发先给出现有记录范围，再对照这张表补差。</div>
+</section>
+
+<!-- ================= 13 计划 ================= -->
+<section class="sec" id="plan">
+  <div class="eyebrow">13 · 建设顺序与待确认的规则</div>
+  <h2>本期的出口是一条完整闭环，<br>不是「资产发布出来了」。</h2>
+  <p class="dek">排期不在本方案内确定，<b>工作量一律由研发估算</b>。下面只给顺序、验收出口和依赖。
+    产品侧要出的东西（规则、界面）和研发侧要做的东西<b>分开列</b>，因为这两件事的进度不该互相等。</p>
+
+  <div class="tw"><table>
+    <thead><tr><th style="width:11%">阶段</th><th style="width:38%">做什么（都落在现有页面上）</th><th style="width:27%">验收出口</th><th>依赖</th></tr></thead>
+    <tbody>
+      <tr style="background:var(--brand-bg)"><td class="main">本期<small>一条闭环</small></td>
+        <td>① 场景库 Scene 草稿区加校验 / 责任人 / 动作三列 + <b>错误／警告两级明细</b> + <b>「用这个草稿试跑」入口</b>（错误阻断、警告放行，第 03 章）<br>
+          ② 指标注册表两张表加待评审区；三类资产各自的评审清单；<b>状态 / 权限 / 操作记录 / 处理人四项依赖</b>（第 04 章）<br>
+          ③ 场景详情弹窗补责任人、绑定指标、修订历史；已发布表加<b>采用</b>列（第 05 章）<br>
+          ④ <b>让新资产能被场景集与评测配置选用，并显示版本</b>——不重建这两处能力（第 06、07 章）<br>
+          ⑤ 创建运行向导：阻断提示 + 摘要显示<b>已冻结</b>的输入（第 08 章）<br>
+          ⑥ Run 详情与运行列表：<b>结论四态 + 原因层 + 分母 + 有效条件标注</b>（第 09 章）<br>
+          ⑦ 四条最小版本规则（★ 全景图）</td>
+        <td><b>一个新场景 + 一个新指标，从本地上传，一路走到出现在某次 Run 的结果里，全程界面可追踪。</b><br>
+          其中两条路径都要能走通：<b>㈠ 不经任何评审，用一个只带警告的草稿试跑一次；㈡ 经评审发布，被配置选用后跑一次。</b>
+          期间不需要任何一次「到哪一步了」的追问。</td>
+        <td>评审待办只能做到页面内可见 + 可分享链接，<b>站外通知没有底座</b> <span class="fl fl-chk">Provider not_configured</span><br>
+          资产归属字段是否已参与权限判断 <span class="fl fl-chk">待核实</span></td></tr>
+      <tr><td class="main">下一阶段</td>
+        <td>① 场景集加版本与成员修订、引用方式（第 06 章）<br>
+          ② 评测配置版本历史里加完整引用树与保存前完整性检查（第 07 章）<br>
+          ③ 与基准 Run 对比加可比性四档与指标数值变化（第 10 章）<br>
+          ④ 评测集合详情页：矩阵 / 趋势 / 稳定性 / 覆盖率（第 11 章）</td>
+        <td>把 <code>Basic</code> 加一个成员，能当场看到 6 个引用它的配置的范围变化；
+          同一改动跑三次，不用打开三个 Run 详情就能说清「是不是同条件下结果不一致」。</td>
+        <td>反向引用查询、冻结清单结构化比较 <span class="fl fl-dev">工作量待研发估算</span><br>
+          <b>本期第 09 章的有效条件必须先落地</b>，否则聚合出的数字没法解释</td></tr>
+      <tr><td class="main">更后面</td>
+        <td>① 跨资产的待办与治理视图（第 12 章，形态待定）<br>
+          ② 批量升级与升级影响分析（第 07 章）<br>
+          ③ 审计可见性、到期复核、通知接入</td>
+        <td>资产变多之后仍然能回答「谁负责、还有效吗、被谁用着」。</td>
+        <td>通知 Provider 配置、审计日志权限 <span class="fl fl-chk">待核实</span></td></tr>
+      <tr><td class="main">本轮不展开</td>
+        <td>开环仿真用例（正式站为空）、台架测试用例、评测用例执行器、自动触发规则。</td>
+        <td>—</td><td>状态主干设计成后续可套用，但本方案不画它们的界面 <span class="fl fl-none">未展开</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="blk">产品侧和研发侧分开排</h3>
+  <p class="hint">上一版把这两件事混在一起，导致「本期做什么」看起来完全取决于研发排期。<b>实际是两条独立进度。</b></p>
+  <div class="tw"><table class="rules">
+    <thead><tr><th style="width:16%">谁做</th><th style="width:34%">要交付什么</th><th style="width:20%">状态</th><th>不依赖什么</th></tr></thead>
+    <tbody>
+      <tr><td class="main">产品设计</td>
+        <td>本方案的全部界面画面、结论四态与原因层、四条最小版本规则、三类资产的评审清单、四条聚合口径建议、有效条件定义。</td>
+        <td><b>本方案内已交付一版。</b>标「建议、待确认」的部分是推荐口径 + 例子，够用来演示界面和开会讨论；<b>确认之后可能还要改</b>。</td>
+        <td>不依赖研发估算，也不依赖排期。</td></tr>
+      <tr><td class="main">研发实现</td>
+        <td>状态字段与迁移约束、权限点（含对象归属）、操作记录表、草稿校验结论的读取、结论四态的数据来源、有效条件的过滤。</td>
+        <td><span class="fl fl-dev">工作量待研发估算</span>本方案不给人天，也不假设某项「只是加几列」。</td>
+        <td>不依赖排期结论。但<b>建议规则要先与相关负责人确认</b>——按未确认的口径开工，返工范围可能不止参数。</td></tr>
+      <tr><td class="main">需要先核实的</td>
+        <td>草稿校验记录、资产归属是否参与权限、审计日志现有记录范围、产物保留周期、PR 关联为何全空。</td>
+        <td><span class="fl fl-chk">待核实</span>都是只读确认，不改任何东西。</td>
+        <td><b>核实结果可能改变对应章节的做法</b>，所以放在实现之前做。</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="two">
+    <div>
+      <div class="ask">
+        <b>业务规则：每条都给了推荐口径，供确认</b>
+        <div class="hint" style="margin:4px 0 8px">这些都标成<b>「建议、待确认」</b>：足以支撑本方案的界面演示和讨论，
+          <b>但正式实现前需要对应负责人确认</b>（产品、指标口径归口人、场景库维护人、研发）。
+          确认下来的口径与这里不同时，界面和数据结构都可能要改。</div>
+        <ul>
+          <li><b>Scene 是否必须绑定 Metric。</b>建议：纯回放场景<b>允许不绑定</b>，但要显式标「仅回放，无指标」——<b>它没有数值，所以既不进门禁分母也不进指标比较</b>。（第 03、05 章）</li>
+          <li><b>只有计算器、没有判定标准的指标。</b>建议：<b>放行为观测项</b>，配置保存时只警告不阻断；
+            <b>它有数值，所以在单位、计算口径与关键输入可比时允许进入数值比较和趋势，只是不产生通过/失败、不进门禁分母</b>。（第 05、07、09 章）</li>
+          <li><b>能不能自审。</b>建议：场景可以由<b>同组另一人</b>审；计算器和「失败严重度＝失败」的判定标准<b>不可自审</b>，因为口径错的返工代价最大。（第 04 章）</li>
+          <li><b>计算器审不审代码。</b>建议：<b>不审代码</b>，只审口径、单位、边界处理、适用范围，并要求提交一次验证运行的证据。（第 04 章）</li>
+          <li><b>评审处理人怎么定。</b>建议：<b>先用角色</b>（场景库维护人 / 指标口径归口人），不逐个资产指定人——资产少的时候逐个指定更容易漏。（第 04 章）</li>
+          <li><b>场景集引用方式的默认值。</b>建议：门禁类配置<b>钉住某一版</b>，日常回归<b>跟随最新</b>并在成员变化时提示范围变化。（第 06 章）</li>
+          <li><b>台架组件健康算必需还是观测。</b>建议：<b>先按「仅观测」并在结论旁显式标注</b>，不要留一个「—」让人猜。（第 09 章，有实测反例 <code>run-b2ce0262</code>）</li>
+          <li><b>聚合口径。</b>建议：<b>按指标语义定，不套同一个函数</b>，并且<b>分两层各定一条</b>——层 1 是单次 Run 内跨场景／跨 episode，层 2 是多次 Run 之间。
+            层 2：事件计数型（<code>collision_count</code>）取<b>最大值</b>、趋势写「N 次中出现 M 次」；连续裕度型（<code>min_clearance</code>）取<b>最差值</b>、趋势取<b>中位数</b>（≥3 次）并给范围；
+            比率型<b>合并分子分母重算</b>、不平均百分比；耗时型只观测。层 1 默认<b>不合并</b>，逐场景列出。
+            语义建议做成注册表上<b>输出指标字段</b>的新属性、两层各填一个值，由归口人在评审时标，未标则不聚合。覆盖率分母用<b>场景集</b>。（第 11 章，两个指标各有例子）</li>
+          <li><b>集合放行规则。</b>这是<b>和单次判定不同的一条规则</b>：三次里有一次碰撞，单次判定已经明确（那一次未通过），但「这一批算不算过」现在没有定义。
+            建议：事件计数型<b>出现过就算集合未通过</b>，连续裕度型<b>取最差值判</b>；在规则确认之前，集合页只显示「结果不一致」和每次的值，<b>不给集合级的通过／未通过</b>。（第 11 章）</li>
+          <li><b>「疑似抖动」的最少重复次数。</b>建议：做成集合参数，默认 3 次；界面只写「结果不一致 · 待排查」，<b>不显示 flaky 标签</b>。（第 11 章）</li>
+          <li><b>各页面默认视图。</b>建议：运行 / 集合 / 资产列表默认<b>团队全部</b>，「我创建的」只是筛选项；只有待办类默认过滤到自己。（第 11 章）</li>
+          <li><b>汇总视图的形态与内容分块。</b>建议：本期<b>只做各页面内的「待我处理」筛选</b>（七类里六类都能落到现有页面）；
+            将来真做汇总视图时，<b>个人待办与平台治理分成两块</b>；导航角标<b>只统计个人待办的事项数</b>（按对象去重，一个对象算一件，各页面角标之和应等于汇总入口的角标），治理项按周期提示、不进角标。
+            「责任人已离组」这一类<b>需要跨资产按人查询，承载页面待定</b>。（第 12 章）</li>
+          <li><b>对比的「关键输入」清单。</b>建议：先固定为计算器版本、判定标准、场景修订、地图版本、车辆配置五项，<b>不做可配置</b>。（第 10 章）</li>
+        </ul>
+      </div>
+      <div class="ask" style="border-left-color:var(--info)">
+        <b>需要研发确认可行性与工作量的</b>
+        <div class="hint" style="margin:4px 0 8px">这几项如果做不到，对应章节的界面要改。<b>工作量一律由研发估算</b>，本方案不给人天。</div>
+        <ul>
+          <li><b>评审所需的状态位、权限点、操作记录</b>——三处后端改动，见第 04 章那张依赖表。这是本期最大的一块，<b>不是「加几列」</b>。</li>
+          <li><b>草稿校验结论的读取</b>——「有效草稿」这个判断后端已经在做，能不能把结论和失败原因取出来给前端。</li>
+          <li><b>场景的精确修订号</b>——现在只有内容哈希。有没有可用的修订标识，或者能否用哈希前缀充当。</li>
+          <li><b>结论四态的数据来源</b>——后端能不能区分「没跑成」「跑了没输出」「本来就不适用」。</li>
+          <li><b>有效条件的过滤</b>——按「场景 × 指标」这一格判断有效性，并在数据层支持过滤。</li>
+          <li><b>反向引用查询</b>——「谁引用了我」。场景集层面已有计数，资产层面拿不到的话第 05 章的引用块要退化成是非值。</li>
+          <li><b>冻结输入的结构化比较</b>——Run 里记的东西很全，但能不能逐项比对，而不只是比一个哈希。</li>
+          <li><b>同 Commit 的运行序号</b>来源；<b>结果复用</b>的有效条件；<b>撤销可用性</b>（怎么阻止新 Run 使用有严重问题的版本）；<b>历史结果重算</b>的成本。</li>
+        </ul>
+      </div>
+      <div class="ask" style="border-left-color:#0B5394">
+        <b>只读核实清单（不改任何东西）</b>
+        <div class="hint" style="margin:4px 0 8px">本轮已经核实过三条（见第 01 章），下面是还没核实的。<b>页面上没显示不等于后端没有</b>，所以这些一律不写成缺陷。</div>
+        <ul>
+          <li>资产上是否已有归属字段，且<b>是否参与权限判断</b>——决定第 04 章权限那一项的工作量。</li>
+          <li>审计日志<b>已经记了哪些动作、有没有前后值</b>——当前账号返回 <code>Insufficient permissions</code>，本轮看不到。</li>
+          <li>运行列表 <b>PR 列全为 <code>-</code></b>：是没接 PR 关联，还是只是没回填。</li>
+          <li>视频 / 日志 / bag 的<b>保留周期</b>——Run 详情已显示视频过期日期，其他产物未知。</li>
+          <li>通知 Provider 是平台级还是 Mementos 独立配置、谁能开。</li>
+          <li>场景集成员记录的是<b>场景名还是某个修订</b>；对比接口按什么对齐场景。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="aside">
+      <h4>怎么用这份方案</h4>
+      <dl>
+        <dt>拿去和研发讨论</dt>
+        <dd>三个清单都可以直接当会议议程。第一个清单里的建议口径<b>要在开发前确认</b>，确认之后再定第二个清单的工作量。</dd>
+        <dt><span class="fl fl-pm">建议、待确认</span></dt>
+        <dd>共 12 条，都在左侧第一个清单，且在对应章节里配了例子。这是产品判断，不是技术限制。</dd>
+        <dt><span class="fl fl-dev">工作量待研发估算</span></dt>
+        <dd>共 8 项。本方案<b>不假设任何一项是低成本</b>，也不给人天。</dd>
+        <dt><span class="fl fl-chk">待核实</span></dt>
+        <dd>共 6 项。都是只读确认，不改任何东西；<b>结果可能改变对应章节的做法</b>。</dd>
+        <dt><span class="fl fl-none">本轮未展开</span></dt>
+        <dd>开环仿真用例、台架测试用例、评测用例执行器、自动触发规则、PR 启动策略。</dd>
+      </dl>
+      <div class="note n-mute" style="margin-top:14px">留意标记颜色：<b>绿色是正式站已经有的</b>，
+        不要把它当成本次新做的；<b>蓝色是待核实</b>，不要当成已确认的缺口。</div>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer>
+  Mementos 产品方案评审版 · 资产进入与结果可信度 · v2 · 2026-09-09 修订<br>
+  现状部分于 2026-09-09 通过已登录浏览器逐页实测正式站 <code>matrix.internal.robotruck.jp/mementos/*</code> 得到，
+  本轮针对性复核了场景库、评测配置、指标注册表和一次完整的 Run 详情（<code>run-b2ce0262</code>）；
+  <code>/mementos/audit-log</code> 当前账号返回 <code>Insufficient permissions</code>，该页能力未能确认。
+  凡界面上无法判断的，本方案标为<b>待核实</b>，不写成缺陷。测试站内容未写入本方案。<br>
+  所有界面均为产品方案设计画面，全部对象与数字为示例数据，不代表已经上线，也不连接正式站。公司代码仓未修改。
+</footer>
+<script>
+/* ========== 把每张设计画面套进同一套正式站框架 ========== */
+(()=>{
+  const NAV=[
+    ['运行与分析',[['运行','runs'],['评测集合','run-sets']]],
+    ['评测准备',[['评测配置','profiles'],['自动触发','automation']]],
+    ['资产与用例',[['资产工作台','workbench',1],['指标注册表','metric'],
+      ['闭环仿真用例','closed'],['开环仿真用例','open'],['台架测试用例','bench']]],
+    ['平台管理',[['评测用例执行器','executors'],['审计日志','audit']]]
+  ];
+  const BDG={workbench:4,metric:2,closed:2};
+  const side=(cur,bdg)=>{
+    let h='<div class="logo"><div class="r">R</div><b>RoboTruck Matrix</b></div>'
+      +'<div class="dom">RoadSense · Scene Hunter · Claymore<br>AI 技能 · 权限管理</div>'
+      +'<div class="prod">MEMENTOS 仿真评测</div>';
+    let first=true;
+    for(const [g,items] of NAV){
+      h+='<div class="sgrp">'+g+(first?'<span class="nb">分组为本次新增</span>':'')+'</div>';
+      first=false;
+      for(const [nm,key,isNew] of items){
+        const n=bdg[key];
+        h+='<div class="sitem'+(key===cur?' on':'')+(isNew?' nw':'')+'">'+nm
+          +(isNew?'<span class="tag">候选 · 下一阶段</span>':'')
+          +(n?'<span class="bdg">'+n+'</span>':'')+'</div>';
+      }
+    }
+    return h+'<div class="dom" style="border:0;margin:14px 0 0;padding:10px 8px 0;'
+      +'border-top:1px solid var(--line)">导航项名称与顺序沿用正式站；'
+      +'<b>分组标题、缩进和待办数字是本次新增；灰色的「资产工作台」是下一阶段候选项</b>。</div>';
+  };
+  document.querySelectorAll('.screen').forEach(sc=>{
+    const cur=sc.dataset.nav; if(!cur) return;
+    const body=sc.querySelector('.body'); if(!body) return;
+    const bdg=Object.assign({},BDG);
+    (sc.dataset.bdg||'').split(',').filter(Boolean).forEach(p=>{
+      const [k,v]=p.split(':');bdg[k]=+v;});
+    const crumbEl=body.querySelector(':scope > .crumb');
+    const crumb=crumbEl?crumbEl.innerHTML:'';
+    if(crumbEl) crumbEl.remove();
+    const pane=document.createElement('div');pane.className='pane';
+    let bar='';
+    if(crumb||sc.dataset.en){
+      bar='<div class="appbar">'+(crumb?'<span>'+crumb+'</span>':'')
+        +(sc.dataset.en?'<span class="k">正式站实际面包屑：'+sc.dataset.en+'</span>':'')
+        +'</div>';
+    }
+    const inner=document.createElement('div');inner.className='pbody';
+    while(body.firstChild) inner.appendChild(body.firstChild);
+    pane.innerHTML=bar;pane.appendChild(inner);
+    const app=document.createElement('div');app.className='app';
+    const as=document.createElement('aside');as.className='side';
+    as.innerHTML=side(cur,bdg);
+    app.appendChild(as);app.appendChild(pane);
+    body.appendChild(app);
+  });
+})();
+(()=>{
+  const links=[...document.querySelectorAll('.toc a')];
+  const secs=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const on=()=>{const y=scrollY+160;let cur=secs[0];
+    for(const s of secs) if(s.offsetTop<=y) cur=s;
+    links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+cur.id));};
+  addEventListener('scroll',on,{passive:true});on();
+})();
+</script>
+</body>
+</html>
